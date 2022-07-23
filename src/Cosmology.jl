@@ -224,13 +224,13 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_dm::Real, Ω_b::R
               Pk_interp::Spline1D, Pk_normalize::Real, σ2_interp::Function, σ2_interp_inv::Function, filt::Type{<:PkFilter}, w0::Real, wa::Real)
     if Ω_k < 0
         ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_dm, Ω_b, Ω_r, Ω_γ, Ω_n, Tcmb0, Neff, m_nu, growth_function, growth_function_inv,
-                   ns, sigma8, z_eq, k, Pk, Pk_interp, Pk_normalize, σ2_loginterp, σ2_loginterp_inv, filt, w0, wa)
+                   ns, sigma8, z_eq, k, Pk, Pk_interp, Pk_normalize, σ2_interp, σ2_interp_inv, filt, w0, wa)
     elseif Ω_k > 0
         OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_dm, Ω_b, Ω_r, Ω_γ, Ω_n, Tcmb0, Neff, m_nu, growth_function, growth_function_inv,
-                 ns, sigma8, z_eq, k, Pk, Pk_interp, Pk_normalize, σ2_loginterp, σ2_loginterp_inv, filt, w0, wa)
+                 ns, sigma8, z_eq, k, Pk, Pk_interp, Pk_normalize, σ2_interp, σ2_interp_inv, filt, w0, wa)
     else
         FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_dm, Ω_b, Ω_r, Ω_γ, Ω_n, Tcmb0, Neff, m_nu, growth_function, growth_function_inv,
-                 ns, sigma8, z_eq, k, Pk, Pk_interp, Pk_normalize, σ2_loginterp, σ2_loginterp_inv, filt, w0, wa)
+                 ns, sigma8, z_eq, k, Pk, Pk_interp, Pk_normalize, σ2_interp, σ2_interp_inv, filt, w0, wa)
     end
 end
 

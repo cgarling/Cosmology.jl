@@ -1,6 +1,10 @@
-using cosmo
-using cosmo.halo
-using Test, Unitful, UnitfulAstro, QuadGK
+using Cosmology
+using Cosmology.halo
+using Test
+import Unitful as u
+using Unitful
+using UnitfulAstro
+import QuadGK: quadgk
 
 # values from http://icosmos.co.uk/
 
@@ -176,8 +180,8 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
 
     @testset "Utilities" begin
         c = cosmology(h = 0.7,Neff=3.046,Tcmb0=2.75,OmegaK=0)
-        @test hubble_time(c, 0) ≈ cosmo.hubble_time0(c)
-        @test hubble_dist(c, 0) ≈ cosmo.hubble_dist0(c)
+        @test hubble_time(c, 0) ≈ Cosmology.hubble_time0(c)
+        @test hubble_dist(c, 0) ≈ Cosmology.hubble_dist0(c)
         @test H(c, 0) ≈ 70u"km/s/Mpc"
         @test n_nu(c) == 3
         @test T_nu(c,0) ≈ 1.9628561026349225 * u.K
@@ -185,11 +189,11 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
         @test T_cmb(c,0) == 2.75 * u.K
         @test T_cmb(c,1.) ≈ 5.5 * u.K
         @test z_at_value(c, scale_factor, 0.8) ≈ 0.25
-        @test cosmo.isscalar(1) == true
-        @test cosmo.isscalar([1,2]) == false
-        @test cosmo.isscalar(1*u.s) == true
-        @test length(cosmo.logspace(1e-2,1e2,length=100)) == 100
-        @test (x=cosmo.logspace(1e-2,1e2,step=0.1); log10(x[2])-log10(x[1])) ≈ 0.1
+        @test Cosmology.isscalar(1) == true
+        @test Cosmology.isscalar([1,2]) == false
+        @test Cosmology.isscalar(1*u.s) == true
+        @test length(Cosmology.logspace(1e-2,1e2,length=100)) == 100
+        @test (x=Cosmology.logspace(1e-2,1e2,step=0.1); log10(x[2])-log10(x[1])) ≈ 0.1
     end
 
     @testset "Halo" begin
