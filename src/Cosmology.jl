@@ -1,4 +1,4 @@
-module cosmo
+module Cosmology
 
 import Unitful as u
 import UnitfulAstro as ua
