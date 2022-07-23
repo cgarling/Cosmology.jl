@@ -6,7 +6,7 @@ import SpecialFunctions: sinint, cosint
 import UnitfulAstro as ua
 import Unitful as u
 import UnitfulEquivalences as ue
-import ..cosmo: eisenstein98zerobaryon, power_spectrum, AbstractCosmology, PkFilter, DefaultFilter, filter_function_k, filter_m_to_r, σ2, dlnσ2_dlnr, ρ_m, growth_integral, Ω_ν, Ω_m, smooth_array_gaussian, logspace, setup_growth
+import ..Cosmology: eisenstein98zerobaryon, power_spectrum, AbstractCosmology, PkFilter, DefaultFilter, filter_function_k, filter_m_to_r, σ2, dlnσ2_dlnr, ρ_m, growth_integral, Ω_ν, Ω_m, smooth_array_gaussian, logspace, setup_growth
 import ..peaks: δc, nonlinear_scale, lagrangianR
 import ..halo: NFWmu, NFW_fundamental_parameters
 import ..hmf: fσ, Sheth2001

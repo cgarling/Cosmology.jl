@@ -1,4 +1,4 @@
-name = "Cosmology.jl"
+name = "Cosmology"
 uuid = "ed9d9147-8919-4a75-999c-a1043df61e62"
 authors = ["cgarling <chris.t.garling@gmail.com>"]
 version = "0.1.0"

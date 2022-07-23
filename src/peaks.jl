@@ -6,7 +6,7 @@ export lagrangianR, lagrangianM, δc, νpeak2, mass_from_νpeak, r_from_νpeak, 
 import UnitfulAstro as ua
 import Unitful as u
 import Dierckx: Spline1D, derivative
-import ..cosmo: AbstractCosmology, Ω_m, ρ_m, σ2, PkFilter, DefaultFilter
+import ..Cosmology: AbstractCosmology, Ω_m, ρ_m, σ2, PkFilter, DefaultFilter
 # include("constants.jl")
 # import ..transfer: σ2
 include("constants.jl")

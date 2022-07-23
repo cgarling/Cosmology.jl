@@ -4,7 +4,7 @@ import UnitfulAstro as ua
 import Unitful as u
 import SpecialFunctions: gamma, erf
 import Dierckx: Spline1D
-import ..cosmo: σ2, dlnσ_dlnm, dlnσ2_dlnm, ρ_m, Ω_m, AbstractCosmology, filter_m_to_r, isscalar, cumtrapz, DefaultFilter, PkFilter, SharpK, logspace
+import ..Cosmology: σ2, dlnσ_dlnm, dlnσ2_dlnm, ρ_m, Ω_m, AbstractCosmology, filter_m_to_r, isscalar, cumtrapz, DefaultFilter, PkFilter, SharpK, logspace
 import ..peaks: lagrangianR, νpeak2, δc
 
 export massfunc_dndm, fσ, Press1972, Sheth1999, Sheth2001, Jenkins2001, Reed2003, Warren2006, Reed2007, Peacock2007, Courtin2010, Crocce2010, Pillepich2010, Bhattacharya2011, Angulo2012_FoF, Angulo2012_Bound, Watson2013_FoF, Ishiyama2015

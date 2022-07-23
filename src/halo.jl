@@ -8,7 +8,7 @@ import Dierckx: Spline1D
 import FiniteDifferences: central_fdm # FiniteDiff is faster, but less flexible.
 c_fdm = central_fdm(3,1)
 # import LoopVectorization: @turbo
-using ..cosmo: AbstractCosmology, Ω_m, ρ_c, ρ_m, hubble_time
+using ..Cosmology: AbstractCosmology, Ω_m, ρ_c, ρ_m, hubble_time
 include("utils.jl")
 include("constants.jl")
 import .constants: G, KPC_KM

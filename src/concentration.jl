@@ -7,7 +7,7 @@ import UnitfulAstro as ua
 import HDF5: h5open, close, read, write
 # include("peaks.jl")
 import ..peaks: δc, νpeak2, lagrangianR, nonlinear_mass, mass_from_νpeak
-import ..cosmo: AbstractCosmology, H, isscalar, dlnσ_dlnr, TopHat, σ2
+import ..Cosmology: AbstractCosmology, H, isscalar, dlnσ_dlnr, TopHat, σ2
 import ..halo: NFWmu, convert_mdef_NFW, NFW_fundamental_parameters, density_threshold
 
 
