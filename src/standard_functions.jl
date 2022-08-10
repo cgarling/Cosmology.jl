@@ -4,32 +4,79 @@
 # import Roots: find_zero, Bisection
 
 # include("types_base.jl")
+#############################################################################################
+# Type handling
+"""
+    h(c::T) where T<:AbstractCosmology
+Returns "little h", defined as the Hubble constant at present day (H0) divided by 100 km / s / Mpc.
+"""
+h(c::T) where T<:AbstractCosmology = c.h
+"""
+    partype(c::T) where T<:AbstractCosmology
+Returns the type of the scalar fields in the `AbstractCosmology` object `c`. 
+"""
+partype(c::T) where T<:AbstractCosmology = typeof(h(c))
+"""
+    m_nu(c::T) where T<:AbstractCosmology
+Returns the masses of the neutrino species in the cosmology `c`.
+"""
+m_nu(c::T) where T<:AbstractCosmology = c.m_nu
+"""
+    Neff(c::T) where T<:AbstractCosmology
+Returns the effective number of neutrino species in the cosmology `c`.
+"""
+Neff(c::T) where T<:AbstractCosmology = c.Neff
 
 #############################################################################################
-# neutrinos
+# Neutrinos and temperatures
+"""
+    T_cmb([u::Unitlike,], c::AbstractCosmology)
+    T_cmb([u::Unitlike,], c::AbstractCosmology, z)
+    T_cmb([u::Unitlike,], z, Tcmb0)
+The temperature of the CMB at redshift z, in Kelvin. Will convert to compatible unit `u` if provided.
+"""
+T_cmb(c::AbstractCosmology) = c.Tcmb0 * u.K
+T_cmb(c::AbstractCosmology, z) = T_cmb(c) * (1 + z) # (T=T_cmb(c); muladd(T,z,T)) # This muladd is not any faster as far as I can tell
+T_cmb(z,Tcmb0::u.Quantity) = Tcmb0 * (1 + z)
+T_cmb(z,Tcmb0) = Tcmb0 * (1 + z) * u.K
+# T_cmb(z,Tcmb0) = (!isa(Tcmb0,u.Quantity) && (Tcmb0 *= u.K); Tcmb0 * (1 + z)) # this is type-unstable
+
 """
     n_nu(c::AbstractCosmology)
     n_nu(Neff::Real)
 Returns the number of discrete neutrinos in the cosmology.
 """
-n_nu(c::AbstractCosmology) = Int(floor(c.Neff)) #number of neutrinos
+n_nu(c::AbstractCosmology) = Int(floor(Neff(c))) #number of neutrinos
 n_nu(Neff::Real) = Int(floor(Neff))
 """
     T_nu([u::Unitlike,], c::AbstractCosmology, z::Real)
+    T_nu([u::Unitlike,], c::AbstractCosmology)
     T_nu(Tcmb0::Real, z::Real)
     T_nu(Tcmb0::u.Quantity, z::Real)
 The neutrino temperature of the cosmology at redshift z in Kelvin. Will convert to compatible unit `u` if provided.
 """
-T_nu(c::AbstractCosmology, z::Real) = 0.7137658555036082 * c.Tcmb0 * (1.0 + z) * u.K #neutrino temperature
-T_nu(Tcmb0::Real, z::Real) = 0.7137658555036082 * Tcmb0 * (1.0 + z) * u.K #neutrino temperature
-T_nu(Tcmb0::u.Quantity, z::Real) = 0.7137658555036082 * (Tcmb0 |> u.K) * (1.0 + z) #neutrino temperature
+T_nu(c::AbstractCosmology) = partype(c)(constants.TNU_PREFAC) * T_cmb(c)
+T_nu(c::AbstractCosmology,z) = partype(c)(constants.TNU_PREFAC) * T_cmb(c,z)
+T_nu(Tcmb0::T, z::T) where T<:Number = T(constants.TNU_PREFAC) * Tcmb0 * (1 + z) * u.K #neutrino temperature
+T_nu(Tcmb0::Number, z::Number) = T_nu(promote(Tcmb0,z)...)
+T_nu(Tcmb0::u.Quantity, z::Number) = T_nu(u.ustrip(u.K,Tcmb0),z)
+# T_nu(c::AbstractCosmology, z::Real) = 0.7137658555036082 * c.Tcmb0 * (1 + z) * u.K #neutrino temperature
+# T_nu(Tcmb0::Real, z::Real) = 0.7137658555036082 * Tcmb0 * (1 + z) * u.K #neutrino temperature
+# T_nu(Tcmb0::u.Quantity, z::Real) = 0.7137658555036082 * (Tcmb0 |> u.K) * (1 + z) #neutrino temperature
 
 """ 
-    nu_relative_density(m_nu::Real, Neff, N_nu, nu_temp)
-    nu_relative_density(m_nu::AbstractArray, Neff, N_nu, nu_temp)
+    nu_relative_density(m_nu::Number, Neff, N_nu, nu_temp)
+    nu_relative_density(m_nu, Neff, N_nu, nu_temp)
     nu_relative_density(c::AbstractCosmology, z)
-Neutrino density function relative to the energy density in photons. """
-@inline function nu_relative_density(m_nu::Real, Neff, nu_temp, N_nu=nothing)
+    nu_relative_density(c::AbstractCosmology)
+Neutrino density function relative to the energy density in photons. If `!(m_nu isa Number)`, then `m_nu` should be iterable and indexable. When called with an `AbstractCosmology` but without a redshift, returns the `z=0` value. 
+
+# Arguments
+ - `m_nu::Any`; either a `Number` or an iterable (like an `Array` or `Tuple`) that contains the neutrino masses in eV.
+ - `Neff`; effective number of neutrino species; see [`Neff`](@ref).
+ - `N_nu`; number of neutrino species; see [`n_nu`](@ref).
+ - `nu_temp`; temperature of neutrino background in Kelvin; see [`T_nu`](@ref). """
+@inline function nu_relative_density(m_nu::Number, Neff, nu_temp, N_nu=nothing)
     N_nu === nothing && (N_nu = n_nu(Neff))
     prefac = 0.22710731766023898 #7/8 * (4/11)^(4/3)
     m_nu==0 && return prefac * Neff
@@ -37,10 +84,10 @@ Neutrino density function relative to the energy density in photons. """
     invp = 0.54644808743  # 1.0 / p
     k = 0.3173
     nu_y = m_nu / (8.617333262145179e-5 * nu_temp )
-    rel_mass = (1.0 + (k * nu_y)^p)^invp
+    rel_mass = (1 + (k * nu_y)^p)^invp
     return prefac * m_nu * Neff / N_nu
 end
-@inline function nu_relative_density(m_nu::AbstractArray, Neff, nu_temp, N_nu=nothing)
+@inline function nu_relative_density(m_nu, Neff, nu_temp, N_nu=nothing) # this will be for m_nu is an array, tuple, etc.
     N_nu === nothing && (N_nu = n_nu(Neff))
     prefac = 0.22710731766023898 #7/8 * (4/11)^(4/3)
     p = 1.83
@@ -55,66 +102,47 @@ end
         else
             nu_y = m_nu[i] / (8.617333262145179e-5 * nu_temp )
             # rel_mass_per[i] = (1.0 + (k * nu_y)^p)^invp
-            rel_mass_per_sum += (1.0 + (k * nu_y)^p)^invp
+            rel_mass_per_sum += (1 + (k * nu_y)^p)^invp
         end
     end
     # return prefac * ( sum(rel_mass_per) + massless ) * Neff / N_nu
     return prefac * ( rel_mass_per_sum + massless ) * Neff / N_nu
 end
-
 @inline function nu_relative_density(c::AbstractCosmology, z)
-    (c.Neff == 0 || c.Neff === nothing) && return 0
-
-    # this is more concise but slower due to the broadcast operations, which are slower than coded loops
-    # prefac = 0.22710731766023898 #7/8 * (4/11)^(4/3)
-    # if 0 in (c.m_nu .== 0) #if at least one neutrino has mass
-    #     p = 1.83
-    #     invp = 0.54644808743  # 1.0 / p
-    #     k = 0.3173
-    #     nu_y = c.m_nu ./ (8.617333262145179e-5 * (T_nu(c,z) |> u.ustrip))  #the constant is k_B in ev / K
-    #     rel_mass_per = @. (1 + (k * nu_y[nu_y!=0])^p)^invp
-    #     rel_mass = sum(rel_mass_per) + length(c.m_nu[c.m_nu.==0])
-    #     return prefac * rel_mass * (c.Neff / n_nu(c) )
-        
-    # else #if all neutrinos are massless
-    #     return prefac * c.Neff
-    # end
-
-    if isscalar(c.m_nu)
-        # return _nu_relative_density_scalar(c,z)
-        return nu_relative_density(c.m_nu, c.Neff, T_nu(c,z)|>u.ustrip)
-    else
-        # return _nu_relative_density_array(c,z)
-        return nu_relative_density(c.m_nu, c.Neff, T_nu(c,z)|>u.ustrip)
-
-    end
+    n_eff = Neff(c)
+    (n_eff == 0 || n_eff === nothing) && return 0
+    return nu_relative_density(m_nu(c), n_eff, u.ustrip(u.K,T_nu(c,z)))
 end
-
+@inline function nu_relative_density(c::AbstractCosmology)
+    n_eff = Neff(c)
+    (n_eff == 0 || n_eff === nothing) && return 0
+    return nu_relative_density(m_nu(c), n_eff, u.ustrip(u.K,T_nu(c)))
+end
 ##############################################################################
-# a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
 """
     a2E(c::AbstractCosmology,a)
     a2E(a,OmegaM,OmegaK,OmegaL,OmegaG,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-The cosmological `E` factor times the scale factor `a` squared. See also the `E` method. 
+The cosmological `E` factor times the scale factor `a` squared. See also the [`E`](@ref) method. 
 """
 function a2E(c::FlatLCDM, a)
     z = 1/a-1
-    Or = c.Ω_γ * (1+nu_relative_density(c,z))
-    return sqrt(Or + c.Ω_m * a + c.Ω_Λ * a^4)
+    Or = Ω_γ(c) * (1 + nu_relative_density(c,z))
+    a2 = a * a
+    return sqrt(Or + Ω_m(c) * a + Ω_Λ(c) * a2 * a2) 
 end
 
 function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
-    a2 = a * a
     z = 1/a-1
-    Or = c.Ω_γ * (1+nu_relative_density(c,z))
-    sqrt(Or + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+    Or = Ω_γ(c) * (1 + nu_relative_density(c,z))
+    a2 = a * a
+    sqrt(Or + Ω_m(c) * a + (Ω_k(c) + Ω_Λ(c) * a2) * a2)
 end
 
 function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
     z = 1/a-1
-    Or = c.Ω_γ * (1+nu_relative_density(c,z))
+    Or = Ω_γ(c) * (1 + nu_relative_density(c,z))
     ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
-    sqrt(Or + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
+    sqrt(Or + (Ω_m(c) + Ω_k(c) * a) * a + Ω_Λ(c) * ade)
 end
 
 function a2E(a,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
@@ -127,18 +155,19 @@ function a2E(a,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
 end
 
 ###############################################################################
-# hubble rate
+# Hubble rate
+###############################################################################
 """ 
     scale_factor(z::Real) or scale_factor(c::AbstractCosmology, z::Real)
 
-Scale factor at redshift ``z``. The scale factor is defined as :math:`a = 1 / (1 + z)`.
-Derivative with respect to z is available as ∇scale_factor(z)
+Scale factor at redshift `z`. The scale factor is defined as :math:`a = 1 / (1 + z)`.
+The derivative with respect to z is available as [`∇scale_factor`](@ref). 
 """
 scale_factor(z::Real) = 1 / (1 + z)
 scale_factor(c::AbstractCosmology, z::Real) = scale_factor(z) #for compatibility with z_at_value
 """ 
     ∇scale_factor(z::Real) or ∇scale_factor(c::AbstractCosmology, z::Real)
-Derivative of the scale factor at redshift ``z``. """
+Derivative of the scale factor at redshift `z` with respect to `z`. """
 ∇scale_factor(z::Real) = -1 / (1 + z)^2
 ∇scale_factor(c::AbstractCosmology,z) = ∇scale_factor(z)
 
@@ -149,17 +178,17 @@ The cosmological `E` factor used in the density evolutions and other quantities.
 """
 E(c::AbstractCosmology, z::Real) = (a = scale_factor(z); a2E(c, a) / a^2)
 E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = (a=scale_factor(z); a2E(a,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa) / a^2)
-H(c::AbstractCosmology, z::Real) = 100 * c.h * E(c, z) * u.km / u.s / ua.Mpc
+H(c::AbstractCosmology, z::Real) = 100 * h(c) * E(c, z) * u.km / u.s / ua.Mpc
 
-hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * ua.Mpc
+hubble_dist0(c::AbstractCosmology) = partype(c)(2997.92458) / h(c) * ua.Mpc # constant is speed of light in km/s divided by 100
 hubble_dist(c::AbstractCosmology, z::Real) = hubble_dist0(c) / E(c, z)
 
-hubble_time0(c::AbstractCosmology) =  9.777922216807893 / c.h * u.Gyr # 9.77814
+hubble_time0(c::AbstractCosmology) =  partype(c)(9.777922216807893) / h(c) * u.Gyr # 9.77814 # 9.777922216807893 / h(c) * u.Gyr
 hubble_time(c::AbstractCosmology, z::Real) = hubble_time0(c) / E(c, z)
 
 ###############################################################################
-# distances
-
+# Distances
+###############################################################################
 Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
     quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
@@ -183,11 +212,11 @@ This value is the transverse comoving distance at redshift ``z`` corresponding t
 comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
     comoving_radial_dist(c, z₁, z₂; kws...)
 function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂ = nothing; kws...)
-    sqrtok = sqrt(c.Ω_k)
+    sqrtok = sqrt(Ω_k(c))
     hubble_dist0(c) * sinh(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
 end
 function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothing; kws...)
-    sqrtok = sqrt(abs(c.Ω_k))
+    sqrtok = sqrt(abs(Ω_k(c)))
     hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
 end
 
@@ -218,26 +247,28 @@ distmod(c::AbstractCosmology, z; kws...) =
     5 * log10(luminosity_dist(c, z; kws...) / ua.Mpc) + 25
 
 #######################################################################################
-# volumes
-
+# Volumes
+#######################################################################################
 """
     comoving_volume([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
 Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided. kws are integration options passed to quadgk.
 """
 comoving_volume(c::AbstractFlatCosmology, z; kws...) =
-    (4pi / 3) * (comoving_radial_dist(ua.Gpc, c, z; kws...))^3
+    (4π / 3) * (comoving_radial_dist(ua.Gpc, c, z; kws...))^3
 function comoving_volume(c::AbstractOpenCosmology, z; kws...)
     DH = hubble_dist0(ua.Gpc, c)
     x = comoving_transverse_dist(ua.Gpc, c, z; kws...) / DH
-    sqrtok = sqrt(c.Ω_k)
-    2π * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtok * x) / sqrtok) / c.Ω_k
+    Ok = Ω_k(c)
+    sqrtok = sqrt(Ok)
+    2π * DH^3 * (x * sqrt(1 + Ok * x^2) - asinh(sqrtok * x) / sqrtok) / Ok
 end
 function comoving_volume(c::AbstractClosedCosmology, z; kws...)
     DH = hubble_dist0(ua.Gpc, c)
     x = comoving_transverse_dist(ua.Gpc, c, z; kws...) / DH
-    sqrtok = sqrt(abs(c.Ω_k))
-    2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtok * x) / sqrtok) / c.Ω_k
+    Ok = Ω_k(c)
+    sqrtok = sqrt(abs(Ok))
+    2π * DH^3 * (x * sqrt(1 + Ok * x^2) - asin(sqrtok * x) / sqrtok) / Ok
 end
 
 """
@@ -249,7 +280,8 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
     hubble_dist0(ua.Gpc, c) * angular_diameter_dist(ua.Gpc, c, z; kws...)^2 / a2E(c, scale_factor(z))
 
 #############################################################################################
-# times
+# Times
+#############################################################################################
 
 T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
 
@@ -296,7 +328,7 @@ de_density_scale(z::Real,w0::Real,wa::Real) = (zp1 = 1+z; zp1^(3 * (1 + w0 + wa)
     ρ_c([u::UnitLike,], z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
 The critical density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_c(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * c.h^2 * E(c,z)^2 * u.g/u.cm^3
+ρ_c(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * h(c)^2 * E(c,z)^2 * u.g/u.cm^3
 ρ_c(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = constants.RHO_C_Z0_CGS * h^2 *
     E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2 * u.g/u.cm^3
 
@@ -305,7 +337,7 @@ The critical density of the universe at redshift z, in g / cm^3. Will convert to
     ρ_m([u::UnitLike,], z,h,OmegaM)
 The matter density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_m(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * c.h^2 * c.Ω_m * (1.0 + z)^3 * u.g/u.cm^3
+ρ_m(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * h(c)^2 * Ω_m(c) * (1 + z)^3 * u.g/u.cm^3
 ρ_m(z,h,Ω_m) = constants.RHO_C_Z0_CGS * h^2 * Ω_m * (1+z)^3 * u.g/u.cm^3
 
 """
@@ -313,7 +345,7 @@ The matter density of the universe at redshift z, in g / cm^3. Will convert to c
     ρ_b([u::UnitLike,], z,h,OmegaB)
 The baryon density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_b(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * c.h^2 * c.Ω_b * (1.0 + z)^3 * u.g/u.cm^3
+ρ_b(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * h(c)^2 * Ω_b(c) * (1 + z)^3 * u.g/u.cm^3
 ρ_b(z,h,Ω_b) = constants.RHO_C_Z0_CGS * h^2 * Ω_b * (1+z)^3 * u.g/u.cm^3
 
 """
@@ -321,7 +353,7 @@ The baryon density of the universe at redshift z, in g / cm^3. Will convert to c
     ρ_dm([u::UnitLike,], z,h,OmegaDM)
 The dark matter density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_dm(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * c.h^2 * c.Ω_dm * (1.0 + z)^3 * u.g/u.cm^3
+ρ_dm(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * h(c)^2 * Ω_dm(c) * (1 + z)^3 * u.g/u.cm^3
 ρ_dm(z,h,Ω_dm) = constants.RHO_C_Z0_CGS * h^2 * Ω_dm * (1+z)^3 * u.g/u.cm^3
 
 """
@@ -329,7 +361,7 @@ The dark matter density of the universe at redshift z, in g / cm^3. Will convert
     ρ_Λ([u::UnitLike,], z,h,Ω_Λ,w0=-1,wa=0)
 The dark energy density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_Λ(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * c.h^2 * c.Ω_Λ / de_density_scale(c,z) * u.g/u.cm^3
+ρ_Λ(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * h(c)^2 * Ω_Λ(c) / de_density_scale(c,z) * u.g/u.cm^3
 ρ_Λ(z,h,Ω_Λ,w0=-1,wa=0) = constants.RHO_C_Z0_CGS * h^2 * Ω_Λ / de_density_scale(z,w0,wa) * u.g/u.cm^3
 
 """
@@ -337,7 +369,7 @@ The dark energy density of the universe at redshift z, in g / cm^3. Will convert
     ρ_γ([u::UnitLike,], z,h,Ω_γ)
 The photon matter density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_γ(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * c.h^2 * c.Ω_γ * (1.0 + z)^4 * u.g/u.cm^3
+ρ_γ(c::AbstractCosmology,z) = constants.RHO_C_Z0_CGS * h(c)^2 * Ω_γ(c) * (1 + z)^4 * u.g/u.cm^3
 ρ_γ(z,h,Ω_γ) = constants.RHO_C_Z0_CGS * h^2 * Ω_γ * (1+z)^4 * u.g/u.cm^3
 
 """
@@ -353,70 +385,76 @@ The neutrino energy density of the universe at redshift z, in g / cm^3. Will con
     ρ_r([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=nothing)
 The energy density of the universe in relativistic species at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 """
-ρ_r(c::AbstractCosmology,z) = ρ_γ(c,z) * (1.0 + nu_relative_density(c::AbstractCosmology, z))
+ρ_r(c::AbstractCosmology,z) = ρ_γ(c,z) * (1 + nu_relative_density(c, z))
 ρ_r(z,h,Tcmb0,Neff,m_nu,N_nu=nothing) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * (1.0 + nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) ) )
 
 
 #############################################################################################
-
+# Basic parameters
 """ 
     Ω_m(c::AbstractCosmology,z)
+    Ω_m(c::AbstractCosmology)
     Ω_m(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Density of matter in units of the critical density. """
-Ω_m(c::AbstractCosmology,z) = c.Ω_m * (1 + z)^3 / E(c,z)^2
+Density of matter at redshift `z` in units of the critical density. When called without a redshift, returns the `z=0` value. """
+Ω_m(c::AbstractCosmology) = c.Ω_m
+Ω_m(c::AbstractCosmology,z) = Ω_m(c) * (1 + z)^3 / E(c,z)^2
 Ω_m(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = OmegaM * (1+z)^3 / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
 """ 
-    Ω_dm(c::AbstractCosmology,z)
-    Ω_dm(z,h,OmegaM,OmegaB,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Density of dark matter in units of the critical density. """
-Ω_dm(c::AbstractCosmology,z) = (c.Ω_m - c.Ω_b) * (1 + z)^3 / E(c,z)^2
-Ω_dm(z,h,OmegaM,OmegaB,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = (OmegaM - OmegaB) * (1+z)^3 / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
-""" 
     Ω_b(c::AbstractCosmology,z)
+    Ω_b(c::AbstractCosmology)
     Ω_b(z,h,OmegaM,OmegaB,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Density of baryons in units of the critical density. """
-Ω_b(c::AbstractCosmology,z) = c.Ω_b * (1 + z)^3 / E(c,z)^2
+Density of baryons at redshift `z` in units of the critical density. When called without a redshift, returns the `z=0` value. """
+Ω_b(c::AbstractCosmology) = c.Ω_b
+Ω_b(c::AbstractCosmology,z) = Ω_b(c) * (1 + z)^3 / E(c,z)^2
 Ω_b(z,h,OmegaM,OmegaB,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = OmegaB * (1+z)^3 / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
 """ 
+    Ω_dm(c::AbstractCosmology,z)
+    Ω_dm(c::AbstractCosmology)
+    Ω_dm(z,h,OmegaM,OmegaB,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
+Density of dark matter at redshift `z` in units of the critical density. When called without a redshift, returns the `z=0` value. """
+Ω_dm(c::AbstractCosmology) = Ω_m(c) - Ω_b(c)
+Ω_dm(c::AbstractCosmology,z) = Ω_dm(c) * (1 + z)^3 / E(c,z)^2
+Ω_dm(z,h,OmegaM,OmegaB,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = (OmegaM - OmegaB) * (1+z)^3 / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
+""" 
     Ω_k(c::AbstractCosmology,z)
+    Ω_k(c::AbstractCosmology)
     Ω_k(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Energy density of curvature in units of the critical density. """
-Ω_k(c::Union{AbstractOpenCosmology,AbstractClosedCosmology},z) = c.Ω_k * (1 + z)^2 / E(c,z)^2
-Ω_k(c::AbstractFlatCosmology,z) = 0.0
+Energy density of curvature at redshift `z` in units of the critical density. When called without a redshift, returns the `z=0` value. """
+Ω_k(c::AbstractCosmology) = c.Ω_k
+Ω_k(c::AbstractCosmology,z) = Ω_k(c) * (1 + z)^2 / E(c,z)^2
+Ω_k(c::AbstractFlatCosmology,z=0.0) = 0.0
 Ω_k(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = OmegaK * (1+z)^2 / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
 """ 
     Ω_γ(c::AbstractCosmology,z)
+    Ω_γ(c::AbstractCosmology)
     Ω_γ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Energy density of photons in units of the critical density. """
-Ω_γ(c::AbstractCosmology,z) = c.Ω_γ * (1 + z)^4 / E(c,z)^2
+Energy density of photons at redshift `z` in units of the critical density. Calculated from [`T_cmb`](@ref). When called without a redshift, returns the `z=0` value. """
+Ω_γ(c::AbstractCosmology) = partype(c)(4.481620089297254e-7) * u.ustrip(u.K,T_cmb(c))^4 / h(c)^2
+Ω_γ(c::AbstractCosmology,z) = Ω_γ(c) * (1 + z)^4 / E(c,z)^2
 Ω_γ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = (OmegaG = 4.481620089297254e-7 * Tcmb0^4 / h^2; OmegaG * (1+z)^4 / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2 )
 """ 
     Ω_ν(c::AbstractCosmology,z)
     Ω_ν(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Energy density in neutrinos in units of the critical density. """
+Energy density in neutrinos at redshift `z` in units of the critical density. When called without a redshift, returns the `z=0` value. """
+Ω_ν(c::AbstractCosmology) = Ω_γ(c) * nu_relative_density(c)
 Ω_ν(c::AbstractCosmology,z) = Ω_γ(c,z) * nu_relative_density(c,z)
 Ω_ν(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = (nu_temp = u.ustrip(T_nu(Tcmb0, z)); Ω_γ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa) * nu_relative_density(m_nu, Neff, nu_temp) )
 """ 
     Ω_r(c::AbstractCosmology,z)
+    Ω_r(c::AbstractCosmology)
     Ω_r(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Energy density in radiation (photons+neutrinos) in units of the critical density. """
+Energy density in radiation at redshift `z` in units of the critical density. Evaluated as `Ω_γ(c,z) + Ω_ν(c,z)`; sum of photons and neutrinos. When called without a redshift, returns the `z=0` value. """
+Ω_r(c::AbstractCosmology) = Ω_γ(c) + Ω_ν(c)
 Ω_r(c::AbstractCosmology,z) = Ω_γ(c,z) + Ω_ν(c,z)
 Ω_r(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = Ω_γ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa) + Ω_ν(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)
 """ 
     Ω_Λ(c::AbstractCosmology,z)
+    Ω_Λ(c::AbstractCosmology)
     Ω_Λ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Energy density in dark energy in units of the critical density. """
-Ω_Λ(c::AbstractCosmology,z) = c.Ω_Λ * de_density_scale(c,z) / E(c,z)^2
+Energy density in dark energy at redshift `z` in units of the critical density. When called without a redshift, returns the `z=0` value. """
+Ω_Λ(c::AbstractCosmology) = c.Ω_Λ
+Ω_Λ(c::AbstractCosmology,z) = Ω_Λ(c) * de_density_scale(c,z) / E(c,z)^2
 Ω_Λ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = OmegaL * de_density_scale(z,w0,wa) / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
-#############################################################################################
-# temperature
-"""
-    T_cmb([u::Unitlike,], c::AbstractCosmology, z)
-    T_cmb([u::Unitlike,], z,Tcmb0)
-The temperature of the CMB at redshift z, in Kelvin. Will convert to compatible unit `u` if provided.
-"""
-T_cmb(c::AbstractCosmology, z) = c.Tcmb0 * (1 + z) * u.K
-T_cmb(z,Tcmb0) = (!isa(Tcmb0,u.Quantity) && (Tcmb0 *= u.K); Tcmb0 * (1 + z))
 
 #############################################################################################
 # roots
@@ -477,14 +515,25 @@ function z_at_value(c::AbstractCosmology, func::Function, fval; zmin=1e-8, zmax=
 end
 
 #########################################################################################
-# misc
-sound_horizon(c::AbstractCosmology) = 44.5 * log(9.83 / c.Ω_m / c.h^2) / sqrt(1.0 + 10.0 * (c.Ω_b * c.h^2)^0.75) * ua.Mpc
-
+# Misc
+#########################################################################################
+"""
+    sound_horizon(c::AbstractCosmology)
+The sound horizon length (in Mpc), given by Equation 26 in Eisenstein & Hu 1998. 
+"""
+sound_horizon(c::AbstractCosmology) = (h2 = h(c)^2; 44.5 * log(9.83 / Ω_m(c) / h2) / sqrt(1.0 + 10.0 * (Ω_b(c) * h2)^0.75) * ua.Mpc)
+# sound_horizon(c::AbstractCosmology) = 44.5 * log(9.83 / c.Ω_m / c.h^2) / sqrt(1.0 + 10.0 * (c.Ω_b * c.h^2)^0.75) * ua.Mpc
+"""
+    matter_radiation_equality(c::AbstractCosmology)
+Returns the redshift of matter-radiation equality. This is computed as Equation 2 in Eisenstein and Hu 1998. I previously had a different formula but couldn't figure out where it came from. 
+"""
+matter_radiation_equality(c::AbstractCosmology) = 2.5e4 * Ω_m(c) * h(c)^2 / (u.ustrip(u.K,T_cmb(c))/2.7)^4
+# matter_radiation_equality(c::AbstractCosmology) = 3600 * (Ω_m(c) * h(c)^2 / 0.15) - 1
 #########################################################################################
 # Easily select a different unit
 for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_radial_dist,
           :comoving_transverse_dist, :angular_diameter_dist, :luminosity_dist,
           :comoving_volume, :comoving_volume_element, :age, :lookback_time,
-          :T_nu, :T_cmb,:ρ_c, :ρ_m, :ρ_b, :ρ_dm, :ρ_Λ, :ρ_γ, :ρ_ν, :ρ_r, :sound_horizon)
+          :T_nu, :T_cmb, :ρ_c, :ρ_m, :ρ_b, :ρ_dm, :ρ_Λ, :ρ_γ, :ρ_ν, :ρ_r, :sound_horizon)
     @eval $f(uu::u.Unitlike, args...; kws...) = u.uconvert(uu, $f(args...; kws...))
 end
