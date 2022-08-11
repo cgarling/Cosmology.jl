@@ -1,5 +1,5 @@
 using Cosmology
-using Cosmology.halo
+# using Cosmology.halo
 using Test
 import Unitful as u
 using Unitful
@@ -8,27 +8,27 @@ import QuadGK: quadgk
 
 # values from http://icosmos.co.uk/
 
-dist_rtol = 1e-6
-age_rtol = 2e-4
-density_rtol=1e-4
+const dist_rtol = 1e-6
+const age_rtol = 2e-4
+const density_rtol=1e-4
 # Integrating a unitful function would require UnitfulIntegration.jl.  Without using it, we
 # strip the units away from the integrand function
 integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
 
 @testset verbose = true "cosmo" begin
     @testset "FlatLCDM" begin
-        c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1649.7501395852312u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 624.00599340817u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaM=0.3, OmegaG=0)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9144029437339u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 625.3444228406352u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3299.5002791704624u"Mpc" rtol = dist_rtol
-        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 150.46417826042958u"Gpc^3" rtol = dist_rtol
+        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3303.8288058874678u"Mpc" rtol = dist_rtol
+        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 151.05712532061932u"Gpc^3" rtol = dist_rtol
         @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ u.ustrip(comoving_volume(c, 2.5))
-        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6599.000558340925u"Mpc" rtol = dist_rtol
-        @test distmod(c,1,rtol=dist_rtol) ≈ 44.09739082553874 rtol = dist_rtol
-        @test age(c,0,rtol=age_rtol) ≈ 13.442087602046708u"Gyr" rtol = age_rtol
-        @test age(c,1,rtol=age_rtol) ≈ 5.736057264890819u"Gyr" rtol = age_rtol
-        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.7059366555968625u"Gyr" rtol = age_rtol
+        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6607.6576117749355u"Mpc" rtol = dist_rtol
+        @test distmod(c,1,rtol=dist_rtol) ≈ 44.10023765554372 rtol = dist_rtol
+        @test age(c,0,rtol=age_rtol) ≈ 13.467105300439439u"Gyr" rtol = age_rtol
+        @test age(c,1,rtol=age_rtol) ≈ 5.751689848348662u"Gyr" rtol = age_rtol
+        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.715337003613595u"Gyr" rtol = age_rtol
         @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test ρ_c(c,0) ≈ cosmo.constants.RHO_C_Z0_CGS * c.h^2 * u.g / u.cm^3 rtol = density_rtol
@@ -36,18 +36,18 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
     end
 
     @testset "OpenLCDM" begin
-        c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1617.938989130271u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 597.7355429147487u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaG=0)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1619.9586273816346u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 598.9117950429865u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3205.8551389053077u"Mpc" rtol = dist_rtol
-        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 139.56802589802757u"Gpc^3" rtol = dist_rtol
+        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3209.7837001394314u"Mpc" rtol = dist_rtol
+        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 140.0855965772839u"Gpc^3" rtol = dist_rtol
         @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ u.ustrip(comoving_volume(c, 2.5))
-        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6471.755956521084u"Mpc" rtol = dist_rtol
-        @test distmod(c,1,rtol=dist_rtol) ≈ 44.055110660500574 rtol = dist_rtol
-        @test age(c,0,rtol=age_rtol) ≈ 13.039034006574486u"Gyr" rtol = age_rtol
-        @test age(c,1,rtol=age_rtol) ≈ 5.531414057800028u"Gyr" rtol = age_rtol
-        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.507526249688181u"Gyr" rtol = age_rtol
+        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6479.834509526539u"Mpc" rtol = dist_rtol
+        @test distmod(c,1,rtol=dist_rtol) ≈ 44.057819572163766 rtol = dist_rtol
+        @test age(c,0,rtol=age_rtol) ≈ 13.061816787881945u"Gyr" rtol = age_rtol
+        @test age(c,1,rtol=age_rtol) ≈ 5.545627298881875u"Gyr" rtol = age_rtol
+        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.5161110299320155u"Gyr" rtol = age_rtol
         @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test nu_relative_density(c, 0) ≈ 26.65068992843329
@@ -55,72 +55,72 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
     end
 
     @testset "ClosedLCDM" begin
-        c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1684.1955230524957u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 654.0604696465515u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaG=0)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1686.5271861439733u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 655.6019184358607u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3404.122184276166u"Mpc" rtol = dist_rtol
-        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 163.1604248480004u"Gpc^3" rtol = dist_rtol
-        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
-        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6736.782092209983u"Mpc" rtol = dist_rtol
-        @test distmod(c,1,rtol=dist_rtol) ≈ 44.14226249950549 rtol = dist_rtol
-        @test age(c,0,rtol=age_rtol) ≈ 13.89488191707916u"Gyr" rtol = age_rtol
-        @test age(c,1,rtol=age_rtol) ≈ 5.968372370430385u"Gyr" rtol = age_rtol
-        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.926415882625424u"Gyr" rtol = age_rtol
+        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3408.9370198733986u"Mpc" rtol = dist_rtol
+        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 163.84786905899605u"Gpc^3" rtol = dist_rtol
+        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ u.ustrip(comoving_volume(c, 2.5))
+        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6746.108744575893u"Mpc" rtol = dist_rtol
+        @test distmod(c,1,rtol=dist_rtol) ≈ 44.14526668781513 rtol = dist_rtol
+        @test age(c,0,rtol=age_rtol) ≈ 13.92262503761163u"Gyr" rtol = age_rtol
+        @test age(c,1,rtol=age_rtol) ≈ 5.985745756567641u"Gyr" rtol = age_rtol
+        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.936800843174262u"Gyr" rtol = age_rtol
         @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test nu_relative_density(c,0) ≈ 26.65068992843329
     end
 
     @testset "FlatWCDM" begin
-        c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1610.0615962417844u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 606.4510355517324u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaM=0.3, OmegaG=0, w0=-0.9, wa=0.1)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.0582924897212u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 607.6801988608612u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3220.123192483569u"Mpc" rtol = dist_rtol
-        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 139.86404034868252u"Gpc^3" rtol = dist_rtol
-        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
-        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6440.246384967138u"Mpc" rtol = dist_rtol
-        @test distmod(c,1,rtol=dist_rtol) ≈ 44.04451241256366 rtol = dist_rtol
-        @test age(c,0,rtol=age_rtol) ≈ 13.16566828635352u"Gyr" rtol = age_rtol
-        @test age(c,1,rtol=age_rtol) ≈ 5.630504541829943u"Gyr" rtol = age_rtol
-        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.5350700629425775u"Gyr" rtol = age_rtol
+        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3224.1165849794425u"Mpc" rtol = dist_rtol
+        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 140.38503745162228u"Gpc^3" rtol = dist_rtol
+        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ u.ustrip(comoving_volume(c, 2.5))
+        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6448.233169958885u"Mpc" rtol = dist_rtol
+        @test distmod(c,1,rtol=dist_rtol) ≈ 44.04720366646934 rtol = dist_rtol
+        @test age(c,0,rtol=age_rtol) ≈ 13.189290392581498u"Gyr" rtol = age_rtol
+        @test age(c,1,rtol=age_rtol) ≈ 5.645434355117561u"Gyr" rtol = age_rtol
+        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.543777588964826u"Gyr" rtol = age_rtol
         @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test nu_relative_density(c,0) ≈ 26.65068992843329
     end
 
     @testset "OpenWCDM" begin
-        c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1586.1252225329724u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 584.3932894559081u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaG=0, w0=-0.9, wa=0.1)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1588.0178528134486u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 585.4929230997847u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_radial_dist(c,rtol=dist_rtol,1) ≈ 3143.936852225188u"Mpc" rtol = dist_rtol
-        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 131.57991701737913u"Gpc^3" rtol = dist_rtol
-        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
-        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6344.50089013189u"Mpc" rtol = dist_rtol
-        @test distmod(c,1,rtol=dist_rtol) ≈ 44.011987313250984 rtol = dist_rtol
-        @test age(c,0,rtol=age_rtol) ≈ 12.824890355589403u"Gyr" rtol = age_rtol
-        @test age(c,1,rtol=age_rtol) ≈ 5.451216656214615u"Gyr" rtol = age_rtol
-        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.373580000269455u"Gyr" rtol = age_rtol
+        @test comoving_radial_dist(c,rtol=dist_rtol,1) ≈ 3147.622246929028u"Mpc" rtol = dist_rtol
+        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 132.04651936026573u"Gpc^3" rtol = dist_rtol
+        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ u.ustrip(comoving_volume(c, 2.5))
+        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6352.071411253794u"Mpc" rtol = dist_rtol
+        @test distmod(c,1,rtol=dist_rtol) ≈ 44.01457685935837 rtol = dist_rtol
+        @test age(c,0,rtol=age_rtol) ≈ 12.846672864196098u"Gyr" rtol = age_rtol
+        @test age(c,1,rtol=age_rtol) ≈ 5.464935753468967u"Gyr" rtol = age_rtol
+        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.3816586516400555u"Gyr" rtol = age_rtol
         @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test nu_relative_density(c,0) ≈ 26.65068992843329
     end
 
     @testset "ClosedWCDM" begin
-        c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1635.4860671380723u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 631.1968065156701u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaG=0, w0=-0.9, wa=0.1)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1637.5992334783048u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 632.5829291313883u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3303.637567903174u"Mpc" rtol = dist_rtol
-        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 149.24368678081768u"Gpc^3" rtol = dist_rtol
-        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
-        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6541.944268552289u"Mpc" rtol = dist_rtol
-        @test distmod(c,1,rtol=dist_rtol) ≈ 44.07853420004287 rtol = dist_rtol
-        @test age(c,0,rtol=age_rtol) ≈ 13.54214187981883u"Gyr" rtol = age_rtol
-        @test age(c,1,rtol=age_rtol) ≈ 5.8307601723594455u"Gyr" rtol = age_rtol
-        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.711288043411212u"Gyr" rtol = age_rtol
+        @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3307.9930096427556u"Mpc" rtol = dist_rtol
+        @test comoving_volume(c,1,rtol=dist_rtol) ≈ 149.83003658984978u"Gpc^3" rtol = dist_rtol
+        @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ u.ustrip(comoving_volume(c, 2.5))
+        @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6550.396933913219u"Mpc" rtol = dist_rtol
+        @test distmod(c,1,rtol=dist_rtol) ≈ 44.08133808849712 rtol = dist_rtol
+        @test age(c,0,rtol=age_rtol) ≈ 13.567944716196108u"Gyr" rtol = age_rtol
+        @test age(c,1,rtol=age_rtol) ≈ 5.847135987422405u"Gyr" rtol = age_rtol
+        @test lookback_time(c,1,rtol=age_rtol) ≈ 7.720730290879207u"Gyr" rtol = age_rtol
         @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test nu_relative_density(c,0) ≈ 26.65068992843329
@@ -128,23 +128,23 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
 
     @testset "Non-Float64" begin
         # Test that FlatLCDM works with non-Float64 (BigFloat in this example)
-        c = cosmology(h=0.7, OmegaM=big(0.3), OmegaR=0)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1649.75013958u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 624.00599340817011u"Mpc" rtol = dist_rtol
+        c = cosmology(h=0.7, OmegaM=big(0.3), OmegaG=0)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9144029437341u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 625.344422840635148u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_volume_element(c, big(1.41)) ≈ 3.385909357771035830e10u"Mpc^3" rtol = dist_rtol
+        @test comoving_volume_element(c, big(1.41)) ≈ 3.40308795871941707e10u"Mpc^3" rtol = dist_rtol
         # Test that FlatWCDM works with non-Float64 (BigFloat in this example)
-        c = cosmology(h=big(0.7), OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
-        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1610.061596241u"Mpc" rtol = dist_rtol
-        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 606.45103555173u"Mpc" rtol = dist_rtol
+        c = cosmology(h=big(0.7), OmegaM=0.3, OmegaG=0, w0=-0.9, wa=0.1)
+        @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.05829248972126693u"Mpc" rtol = dist_rtol
+        @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 607.6801988608u"Mpc" rtol = dist_rtol
         @test angular_diameter_dist(c,pi,rtol=dist_rtol) ≈ angular_diameter_dist(c,0,pi,rtol=dist_rtol) rtol = dist_rtol
-        @test comoving_volume_element(c, big(1.41)) ≈ 3.122922100e10u"Mpc^3" rtol = dist_rtol
+        @test comoving_volume_element(c, big(1.41)) ≈ 3.13786257398184e10u"Mpc^3" rtol = dist_rtol
         # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
         # @test nu_relative_density(c,0) ≈ 26.65068992843329
     end
 
     @testset "Units" begin
-        c = cosmology(h=0.9, OmegaM=0.5, OmegaR=0)
+        c = cosmology(h=0.9, OmegaM=0.5, OmegaG=0)
         for u in (u"m", u"pc", u"ly")
             @test unit(luminosity_dist(u, c, 1)) == u
             @test unit(angular_diameter_dist(u, c, 2)) == u
@@ -179,7 +179,7 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
     end
 
     @testset "Utilities" begin
-        c = cosmology(h = 0.7,Neff=3.046,Tcmb0=2.75,OmegaK=0)
+        c = cosmology(h = 0.7,N_eff=3.046,Tcmb0=2.75,OmegaK=0)
         @test hubble_time(c, 0) ≈ Cosmology.hubble_time0(c)
         @test hubble_dist(c, 0) ≈ Cosmology.hubble_dist0(c)
         @test H(c, 0) ≈ 70u"km/s/Mpc"
@@ -196,25 +196,25 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
         @test (x=Cosmology.logspace(1e-2,1e2,step=0.1); log10(x[2])-log10(x[1])) ≈ 0.1
     end
 
-    @testset "Halo" begin
-        c = cosmology(h=0.6766,OmegaK=0,OmegaM=0.30966,OmegaB=0.04897,OmegaR=nothing,w0=-1,wa=0,Neff=3.046,m_nu=[0, 0, 0.06] * u.eV,ns=0.9665,sigma8=0.8102,tau=0.0561,z_reion=7.82,a_min=1e-5,transfer_model=Eisenstein1998,k_min=1e-20,k_max=1e20,dlogk=0.01)
-        b = NFW(c=c,M=1e12,conc=10,z=0.0,mdef="200c")
-        @test b.rs ≈ 21.10080548234697
-        @test b.rhos ≈ 5.689255015396299e6
-        @test Δvir(c,0.) ≈ 102.45879591120845
-        @test ρ(1.0,b) ≈ 1.094299746287284e8
-        @test ∇ρ(1.0,b) ≈ -1.1933277882436149e8
-        @test ρmean(1.0,b) ≈ 1.692707127584995e8
-        @test ∇ρmean(1.0,b) ≈ -1.7952221438931662e8
-        @test enclosed_mass(1.0,b) ≈ 7.090395035600148e8
-        @test all(Σ([1.0,b.rs,50.0],b) .≈ [6.608123771664459e8, 8.003190894622941e7, 2.453549690288129e7])
-        @test all(projected_mass([1.0,b.rs,50.0],b) .≈
-            [2.449752480502437e9, 2.0610687805610764e11, 4.688096750221652e11])
-        @test Φ(1.0,b) ≈ -133761.4882774559 # * (u.km/u.s)^2 #might not include units in the future
-        @test ∇Φ(1.0,b) ≈ 9.882822055975421e-14
-        @test ∇∇Φ(1.0,b) ≈ -1.9397068199885201e-31
-        @test ∇²Φ(1.0,b) ≈ 6.2116383260549736e-30
-        @test circular_velocity(1.0,b) ≈ 55.22246142648133
-        @test escape_velocity(1.0,b) ≈ 517.226233436503
-    end
+    # @testset "Halo" begin
+    #     c = cosmology(h=0.6766,OmegaK=0,OmegaM=0.30966,OmegaB=0.04897,OmegaR=nothing,w0=-1,wa=0,Neff=3.046,m_nu=[0, 0, 0.06] * u.eV,ns=0.9665,sigma8=0.8102,tau=0.0561,z_reion=7.82,a_min=1e-5,transfer_model=Eisenstein1998,k_min=1e-20,k_max=1e20,dlogk=0.01)
+    #     b = NFW(c=c,M=1e12,conc=10,z=0.0,mdef="200c")
+    #     @test b.rs ≈ 21.10080548234697
+    #     @test b.rhos ≈ 5.689255015396299e6
+    #     @test Δvir(c,0.) ≈ 102.45879591120845
+    #     @test ρ(1.0,b) ≈ 1.094299746287284e8
+    #     @test ∇ρ(1.0,b) ≈ -1.1933277882436149e8
+    #     @test ρmean(1.0,b) ≈ 1.692707127584995e8
+    #     @test ∇ρmean(1.0,b) ≈ -1.7952221438931662e8
+    #     @test enclosed_mass(1.0,b) ≈ 7.090395035600148e8
+    #     @test all(Σ([1.0,b.rs,50.0],b) .≈ [6.608123771664459e8, 8.003190894622941e7, 2.453549690288129e7])
+    #     @test all(projected_mass([1.0,b.rs,50.0],b) .≈
+    #         [2.449752480502437e9, 2.0610687805610764e11, 4.688096750221652e11])
+    #     @test Φ(1.0,b) ≈ -133761.4882774559 # * (u.km/u.s)^2 #might not include units in the future
+    #     @test ∇Φ(1.0,b) ≈ 9.882822055975421e-14
+    #     @test ∇∇Φ(1.0,b) ≈ -1.9397068199885201e-31
+    #     @test ∇²Φ(1.0,b) ≈ 6.2116383260549736e-30
+    #     @test circular_velocity(1.0,b) ≈ 55.22246142648133
+    #     @test escape_velocity(1.0,b) ≈ 517.226233436503
+    # end
 end

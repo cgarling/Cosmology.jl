@@ -5,7 +5,7 @@
 
 # include("types_base.jl")
 #############################################################################################
-# Type handling
+# Type handling and parameter retrieval
 """
     h(c::T) where T<:AbstractCosmology
 Returns "little h", defined as the Hubble constant at present day (H0) divided by 100 km / s / Mpc.
@@ -26,6 +26,16 @@ m_nu(c::T) where T<:AbstractCosmology = c.m_nu
 Returns the effective number of neutrino species in the cosmology `c`.
 """
 Neff(c::T) where T<:AbstractCosmology = c.Neff
+"""
+    w0(c::Union{FlatWCDM,OpenWCDM,ClosedWCDM})
+Returns the present-day value of `w` for the CDL equation of state.
+"""
+w0(c::Union{FlatWCDM,OpenWCDM,ClosedWCDM}) = c.w0
+"""
+    wa(c::Union{FlatWCDM,OpenWCDM,ClosedWCDM})
+Returns the evolution parameter for the CDL equation of state.
+"""
+wa(c::Union{FlatWCDM,OpenWCDM,ClosedWCDM}) = c.wa
 
 #############################################################################################
 # Neutrinos and temperatures
@@ -39,7 +49,6 @@ T_cmb(c::AbstractCosmology) = c.Tcmb0 * u.K
 T_cmb(c::AbstractCosmology, z) = T_cmb(c) * (1 + z) # (T=T_cmb(c); muladd(T,z,T)) # This muladd is not any faster as far as I can tell
 T_cmb(z,Tcmb0::u.Quantity) = Tcmb0 * (1 + z)
 T_cmb(z,Tcmb0) = Tcmb0 * (1 + z) * u.K
-# T_cmb(z,Tcmb0) = (!isa(Tcmb0,u.Quantity) && (Tcmb0 *= u.K); Tcmb0 * (1 + z)) # this is type-unstable
 
 """
     n_nu(c::AbstractCosmology)
@@ -49,24 +58,22 @@ Returns the number of discrete neutrinos in the cosmology.
 n_nu(c::AbstractCosmology) = Int(floor(Neff(c))) #number of neutrinos
 n_nu(Neff::Real) = Int(floor(Neff))
 """
-    T_nu([u::Unitlike,], c::AbstractCosmology, z::Real)
-    T_nu([u::Unitlike,], c::AbstractCosmology)
-    T_nu(Tcmb0::Real, z::Real)
-    T_nu(Tcmb0::u.Quantity, z::Real)
-The neutrino temperature of the cosmology at redshift z in Kelvin. Will convert to compatible unit `u` if provided.
+    T_nu([u::Unitlike], c::AbstractCosmology, [z::Number])
+    T_nu(Tcmb0::Number, [z::Number])
+    T_nu(Tcmb0::u.Temperature, [z::Number])
+The neutrino temperature of the cosmology at redshift `z` in Kelvin. If `z` is not provided, will return neutrino temperature at `z=0`. Will convert to compatible unit `u` if provided.
 """
-T_nu(c::AbstractCosmology) = partype(c)(constants.TNU_PREFAC) * T_cmb(c)
-T_nu(c::AbstractCosmology,z) = partype(c)(constants.TNU_PREFAC) * T_cmb(c,z)
-T_nu(Tcmb0::T, z::T) where T<:Number = T(constants.TNU_PREFAC) * Tcmb0 * (1 + z) * u.K #neutrino temperature
+T_nu(Tcmb0::T) where T<:Number = T(constants.TNU_PREFAC) * Tcmb0 * u.K
+T_nu(Tcmb0::T, z::T) where T<:Number = T_nu(Tcmb0) * (1 + z)
 T_nu(Tcmb0::Number, z::Number) = T_nu(promote(Tcmb0,z)...)
-T_nu(Tcmb0::u.Quantity, z::Number) = T_nu(u.ustrip(u.K,Tcmb0),z)
-# T_nu(c::AbstractCosmology, z::Real) = 0.7137658555036082 * c.Tcmb0 * (1 + z) * u.K #neutrino temperature
-# T_nu(Tcmb0::Real, z::Real) = 0.7137658555036082 * Tcmb0 * (1 + z) * u.K #neutrino temperature
-# T_nu(Tcmb0::u.Quantity, z::Real) = 0.7137658555036082 * (Tcmb0 |> u.K) * (1 + z) #neutrino temperature
+T_nu(Tcmb0::u.Temperature, z::Number) = T_nu(u.ustrip(u.K,Tcmb0),z)
+T_nu(Tcmb0::u.Temperature) = T_nu(u.ustrip(u.K,Tcmb0))
+T_nu(c::AbstractCosmology) = T_nu(T_cmb(c))
+T_nu(c::AbstractCosmology,z) = T_nu(T_cmb(c,z))
 
 """ 
-    nu_relative_density(m_nu::Number, Neff, N_nu, nu_temp)
-    nu_relative_density(m_nu, Neff, N_nu, nu_temp)
+    nu_relative_density(m_nu::Number, Neff::Number, nu_temp::Number N_nu::Number=n_nu(Neff))
+    nu_relative_density(m_nu, Neff::Number, nu_temp::Number, N_nu::Union{Nothing,Number}=nothing)
     nu_relative_density(c::AbstractCosmology, z)
     nu_relative_density(c::AbstractCosmology)
 Neutrino density function relative to the energy density in photons. If `!(m_nu isa Number)`, then `m_nu` should be iterable and indexable. When called with an `AbstractCosmology` but without a redshift, returns the `z=0` value. 
@@ -76,46 +83,49 @@ Neutrino density function relative to the energy density in photons. If `!(m_nu 
  - `Neff`; effective number of neutrino species; see [`Neff`](@ref).
  - `N_nu`; number of neutrino species; see [`n_nu`](@ref).
  - `nu_temp`; temperature of neutrino background in Kelvin; see [`T_nu`](@ref). """
-@inline function nu_relative_density(m_nu::Number, Neff, nu_temp, N_nu=nothing)
-    N_nu === nothing && (N_nu = n_nu(Neff))
-    prefac = 0.22710731766023898 #7/8 * (4/11)^(4/3)
-    m_nu==0 && return prefac * Neff
-    p = 1.83
-    invp = 0.54644808743  # 1.0 / p
-    k = 0.3173
-    nu_y = m_nu / (8.617333262145179e-5 * nu_temp )
+@inline function nu_relative_density(m_nu::T, Neff::T, nu_temp::T, N_nu::S) where {T<:Number,S<:Integer}
+    iszero(nu_temp) && (return zero(T))
+    prefac = T(0.22710731766023898) #7/8 * (4/11)^(4/3)
+    iszero(m_nu) && (return prefac * Neff)
+    p = T(1.83)
+    invp = T(0.54644808743)  # 1.0 / p
+    k = T(0.3173)
+    nu_y = m_nu / (T(8.617333262145179e-5) * nu_temp )
     rel_mass = (1 + (k * nu_y)^p)^invp
     return prefac * m_nu * Neff / N_nu
 end
-@inline function nu_relative_density(m_nu, Neff, nu_temp, N_nu=nothing) # this will be for m_nu is an array, tuple, etc.
-    N_nu === nothing && (N_nu = n_nu(Neff))
-    prefac = 0.22710731766023898 #7/8 * (4/11)^(4/3)
-    p = 1.83
-    invp = 0.54644808743  # 1.0 / p
-    k = 0.3173
-    #rel_mass_per=zeros(eltype(m_nu), length(m_nu)) #allows use of staticarrays for m_nu
-    rel_mass_per_sum=0.0
+nu_relative_density(m_nu::Number, Neff::Number, nu_temp::Number, N_nu::Number=n_nu(Neff)) = nu_relative_density(promote(m_nu,Neff,nu_temp)...,Int(N_nu))
+# Now for if m_nu isa Vector, Tuple, etc. 
+@inline function nu_relative_density(m_nu, Neff::T, nu_temp::T, N_nu::S) where {T<:Number,S<:Integer}
+    iszero(nu_temp) && (return zero(Neff))
+    prefac = T(0.22710731766023898) #7/8 * (4/11)^(4/3)
+    p = T(1.83)
+    invp = T(0.54644808743)  # 1 / p
+    k = T(0.3173)
+    nu_y_fac = T(11604.518121550082) # 1 / 8.617333262145179e-5
+    inv_nu_temp = 1 / nu_temp
+    rel_mass_per_sum = zero(T)
     massless=0
-    for i in eachindex(m_nu)
-        if m_nu[i]==0
+    @inbounds for i in eachindex(m_nu)
+        if iszero(m_nu[i])
             massless+=1
         else
-            nu_y = m_nu[i] / (8.617333262145179e-5 * nu_temp )
-            # rel_mass_per[i] = (1.0 + (k * nu_y)^p)^invp
+            # nu_y = m_nu[i] / (8.617333262145179e-5 * nu_temp )
+            nu_y = m_nu[i] * nu_y_fac * inv_nu_temp
             rel_mass_per_sum += (1 + (k * nu_y)^p)^invp
         end
     end
-    # return prefac * ( sum(rel_mass_per) + massless ) * Neff / N_nu
     return prefac * ( rel_mass_per_sum + massless ) * Neff / N_nu
 end
+nu_relative_density(m_nu, Neff::Number, nu_temp::Number, N_nu::Number=n_nu(Neff)) = nu_relative_density(m_nu,promote(Neff,nu_temp)...,Int(N_nu))
 @inline function nu_relative_density(c::AbstractCosmology, z)
     n_eff = Neff(c)
-    (n_eff == 0 || n_eff === nothing) && return 0
+    (iszero(n_eff) || n_eff === nothing) && return zero(z)
     return nu_relative_density(m_nu(c), n_eff, u.ustrip(u.K,T_nu(c,z)))
 end
 @inline function nu_relative_density(c::AbstractCosmology)
     n_eff = Neff(c)
-    (n_eff == 0 || n_eff === nothing) && return 0
+    (iszero(n_eff) || n_eff === nothing) && return zero(z)
     return nu_relative_density(m_nu(c), n_eff, u.ustrip(u.K,T_nu(c)))
 end
 ##############################################################################
