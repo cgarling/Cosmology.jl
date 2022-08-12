@@ -183,7 +183,7 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
         @test hubble_time(c, 0) ≈ Cosmology.hubble_time0(c)
         @test hubble_dist(c, 0) ≈ Cosmology.hubble_dist0(c)
         @test H(c, 0) ≈ 70u"km/s/Mpc"
-        @test n_nu(c) == 3
+        @test Cosmology.n_nu(c) == 3
         @test T_nu(c,0) ≈ 1.9628561026349225 * u.K
         @test T_nu(c,1.) ≈ 3.925712205269845 * u.K
         @test T_cmb(c,0) == 2.75 * u.K

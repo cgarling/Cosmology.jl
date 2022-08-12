@@ -3,21 +3,8 @@ module Cosmology
 import Unitful as u
 import UnitfulAstro as ua
 import UnitfulEquivalences as ue
-# import Dierckx: Spline1D, derivative
-import OrdinaryDiffEq: ODEProblem, solve, Tsit5
-import SpecialFunctions: gamma
 import Roots: find_zero, Bisection
 import QuadGK: quadgk
-# import Trapz: trapz
-# import DoubleExponentialFormulas: quaddeo, quadde
-# using PyCall
-
-# __precompile__(true)
-
-# const camb = PyNULL()
-# function __init__()
-#     copy!(camb, pyimport_conda("camb","camb","conda-forge"))
-# end
 
 export cosmology,
     age,
@@ -43,8 +30,6 @@ export cosmology,
     Ω_m, Ω_dm, Ω_b, Ω_k, Ω_γ, Ω_ν, Ω_r, Ω_Λ, m_nu, Neff,# Ω_sum,
     #h, w,
     sound_horizon, matter_radiation_equality
-    # setup_growth, growth_integral,
-    # concentration #massfunc_dndm, NFW, ρ, ∇ρ, ρmean, ∇ρmean, enclosedMass, Φ, ∇Φ, Δvir # halo is now a separate module so it should be imported separately.
 
 include("utils.jl")
 include("constants.jl")
@@ -54,7 +39,7 @@ import ..constants
 """ `AbstractCosmology` is the base type for all cosmologies. """
 abstract type AbstractCosmology end
 Base.Broadcast.broadcastable(m::AbstractCosmology) = Ref(m)
-# we could do more efficient, automatic broadcasting with StructArrays, but already hand-coded the iterables which is perhaps regrettable. Could do a refactoring if necessary. 
+
 """ `AbstractClosedCosmology` is the base type for all closed cosmologies (Ω_k<0). """
 abstract type AbstractClosedCosmology <: AbstractCosmology end
 """ `AbstractFlatCosmology` is the base type for all flat cosmologies (Ω_k=0). """
@@ -63,6 +48,9 @@ abstract type AbstractFlatCosmology <: AbstractCosmology end
 abstract type AbstractOpenCosmology <: AbstractCosmology end
 
 #############################################################################
+"""
+    FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν)
+Type for flat (Ω_k=0) ΛCDM cosmologies (w0=-1, wa=0). """
 struct FlatLCDM{T <: Real, N} <: AbstractFlatCosmology
     h::T
     Ω_Λ::T
@@ -81,6 +69,9 @@ function FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Nef
     return FlatLCDM(h, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν) 
 end
 #############################################################################
+"""
+    ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν)
+Type for closed (Ω_k<0) ΛCDM cosmologies (w0=-1, wa=0). """
 struct ClosedLCDM{T <: Real, N} <: AbstractClosedCosmology
     h::T
     Ω_k::T
@@ -100,6 +91,9 @@ function ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tc
     return ClosedLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν) 
 end
 #############################################################################
+"""
+    OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν)
+Type for open (Ω_k>0) ΛCDM cosmologies (w0=-1, wa=0). """
 struct OpenLCDM{T <: Real, N} <: AbstractOpenCosmology
     h::T
     Ω_k::T
@@ -123,6 +117,13 @@ end
 for c in ("Flat", "Open", "Closed")
     name = Symbol("$(c)WCDM")
     @eval begin
+        """
+                FlatWCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν, w0::Real, wa::Real)
+            $($c) cosmology with the w0wa dark energy equation of state,
+            ```math
+            w(z) = w_0 + w_a \\, \\frac{z}{1+z} = w_0 + w_a \\, (1-a)
+            ```
+            (Equations 6 and 7 in [Linder 2003](https://ui.adsabs.harvard.edu/abs/2003PhRvL..90i1301L/abstract)). """
         struct $(name){TTT <: Real, N} <: $(Symbol("Abstract$(c)Cosmology"))
             h::TTT
             Ω_k::TTT
@@ -138,6 +139,44 @@ for c in ("Flat", "Open", "Closed")
     end
 end
 
+function FlatWCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν, w0::Real, wa::Real)
+    @assert iszero(Ω_k)
+    # Promote the scalars
+    h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa = promote(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa)
+    T = typeof(h)   # Get the type determined by the scalar promotion
+    m_ν = m_nu(m_ν) # Convert m_ν to an NTuple
+    m_ν = convert(NTuple{length(m_ν),T},m_ν) # Convert the eltype of the NTuple to the correct thing
+    return FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν, w0, wa)     
+end
+
+function OpenWCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν, w0::Real, wa::Real)
+    @assert Ω_k > 0
+    # Promote the scalars
+    h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa = promote(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa)
+    T = typeof(h)   # Get the type determined by the scalar promotion
+    m_ν = m_nu(m_ν) # Convert m_ν to an NTuple
+    m_ν = convert(NTuple{length(m_ν),T},m_ν) # Convert the eltype of the NTuple to the correct thing
+    return OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν, w0, wa)     
+end
+
+function ClosedWCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν, w0::Real, wa::Real)
+    @assert Ω_k < 0
+    # Promote the scalars
+    h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa = promote(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa)
+    T = typeof(h)   # Get the type determined by the scalar promotion
+    m_ν = m_nu(m_ν) # Convert m_ν to an NTuple
+    m_ν = convert(NTuple{length(m_ν),T},m_ν) # Convert the eltype of the NTuple to the correct thing
+    return OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν, w0, wa)     
+end
+
+"""
+    WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν, w0::Real, wa::Real)
+Constructs a cosmology with the w0wa dark energy equation of state,
+```math
+w(z) = w_0 + w_a \\, \\frac{z}{1+z} = w_0 + w_a \\, (1-a)
+```
+and returns one of [`FlatWCDM`](@ref Cosmology.FlatWCDM), [`OpenWCDM`](@ref Cosmology.OpenWCDM), [`ClosedWCDM`](@ref Cosmology.ClosedWCDM) depending the value of `Ω_k`. This function is type-unstable by design. 
+"""
 function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν, w0::Real, wa::Real)
     # Promote the scalars
     h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa = promote(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, w0, wa)
@@ -278,6 +317,8 @@ Constructs the proper `AbstractCosmology` type depending on the passed parameter
 
 # Examples
 
+!!! info
+    I am aware this function is not type-stable; it will return different concrete subtypes of `AbstractCosmology` depending on the parameters you pass. This is known. If you want to, you can access constructors of the concrete types directly; this can make creation of new instances much faster. For example, `c=cosmology()` takes ~300 ns, while `FlatLCDM(c.h,c.Ω_Λ,c.Ω_m,c.Ω_b,c.Tcmb0,c.Neff,c.m_nu)` takes ~1 ns. If you REALLY need this speed, you should use the basic constructors.
 !!! note
     Inclusion of massive neutrinos is expensive. For example, for the default massive neutrino parameters `c=cosmology()`, the evaluation of `E(c, 0.8)` takes 114.613 ns, while `E( cosmology(m_ν=(0.0,),N_eff=3.046), 0.8)` takes 6.986 ns and `E( cosmology(m_ν=(0.0,),N_eff=0), 0.8)` takes 6.095 ns. This makes a significant difference in methods that involve integrations (e.g., [`comoving_radial_dist`](@ref)). If speed is a concern, consider if you can neglect neutrinos for your calculation. """
 function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z = 0 / 100 [km/sec/Mpc]
@@ -328,7 +369,7 @@ function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z =
     OmegaL = 1 - OmegaK - OmegaM - OmegaR # calculate the dark energy density
     ## Type conversions ###############################################################################################
     # I think I am moving these the to the other type constructors? Not 100% sure if I need to do a type conversion here or not
-    ### Initializing structs; this is not technically type-stable but doesn't seem to hurt performance much 
+    ### Initializing structs; this is not type-stable
     if !(w0 == -1 && wa == 0)
         return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaB, Tcmb0, N_eff, m_ν, w0, wa)
     end
@@ -342,7 +383,7 @@ function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z =
 end
 
 # include("growth.jl")                       
-# include("default_cosmologies.jl")
+include("default_cosmologies.jl")
 # include("halo.jl")
 # using .halo
 # include("peaks.jl")

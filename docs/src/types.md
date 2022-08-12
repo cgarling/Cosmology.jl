@@ -8,14 +8,37 @@ Cosmology.AbstractOpenCosmology
 Cosmology.AbstractClosedCosmology
 ```
 
-## Concrete Types
+## [Concrete Types](@id concrete_types)
 The following concrete types, representing specific types of cosmologies, are currently implemented:
- - `FlatLCDM`, `OpenLCDM`, `ClosedLCDM`, `FlatWCDM`, `OpenWCDM`,
+```@docs
+Cosmology.FlatLCDM
+Cosmology.OpenLCDM
+Cosmology.ClosedLCDM
+Cosmology.FlatWCDM
+Cosmology.OpenWCDM
+Cosmology.ClosedWCDM
+```
  
-## Constructors
+## Convenience Constructors
+```@docs
+Cosmology.cosmology
+Cosmology.WCDM
+```
+
+## [Pre-Constructed Instances](@id default_cosmologies)
+These are constant instances that implement published cosmological results.
+```@docs
+Cosmology.Planck18
+Cosmology.Planck15
+Cosmology.Planck15_only
+Cosmology.Planck13
+Cosmology.WMAP9
+Cosmology.WMAP7
+Cosmology.WMAP5
+```
 
 ## Retrieving Parameters
-The parameters that define these types are accessed via the following unexported, internal methods
+The parameters that define these types are accessed via the following unexported, internal methods.
 
 ```@docs
 Cosmology.h

@@ -1,7 +1,7 @@
 
 isscalar(x) = isa(x, Union{Number,AbstractString,Char,Bool})::Bool
 """ 
-    heaviside(x::Union{AbstractFloat,AbstractArray}; y=0.5)
+    heaviside(x::Union{Number,AbstractArray}; y=0.5)
 Returns the heaviside function which is 0 if x<0, 1 if x>0, and y if x==0. """
 heaviside(x::AbstractFloat, x2=0.5) = ifelse(x < 0, zero(x), ifelse(x > 0, one(x), oftype(x,x2)))
 heaviside(x::AbstractArray, x2=0.5) = [heaviside(i,x2) for i in x]

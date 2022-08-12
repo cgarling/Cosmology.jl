@@ -137,7 +137,7 @@ nu_relative_density(c::AbstractCosmology) = nu_relative_density(m_nu(c), Neff(c)
 """
     a2E(c::AbstractCosmology,a)
     a2E(a,OmegaM,OmegaK,OmegaL,OmegaG,Tcmb0,m_nu,Neff,w0=-1,wa=0)
-Return the cosmological [`E`](@ref) factor times the square of the [scale factor](@ref Cosmology.scale_factor) `a`.
+Return the cosmological [`E`](@ref) factor times the square of the [`scale factor`](@ref Cosmology.scale_factor) `a`.
 """
 function a2E(c::FlatLCDM, a)
     z = 1/a-1
@@ -363,7 +363,11 @@ lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_fa
 """ 
     w(c::Union{FlatWCDM,OpenWCDM,ClosedWCDM,FlatLCDM,OpenLCDM,ClosedLCDM},z)
     w(z::Real,w0::Real,wa::Real)
-Evaluates the redshift dependence of the dark energy density. The scaling factor, ``I(z)``, is defined by ``ρ_Λ(z) = I(z) \\ ρ_{Λ,0}``.
+Evaluates the redshift dependence of the dark energy equation of state,
+```math
+w \\equiv \\frac{p_\\Lambda}{\\rho_\\Lambda},
+```
+the ratio of the pressure to the energy density. The scaling factor, ``I(z)``, is defined by ``ρ_Λ(z) = I(z) \\ ρ_{Λ,0}``.
 """
 w(c::Union{FlatLCDM,OpenLCDM,ClosedLCDM},z) = -1
 w(c::Union{FlatWCDM,OpenWCDM,ClosedWCDM},z) = w0(c) + wa(c) * z / (1 + z)
@@ -439,11 +443,22 @@ The dark matter density of the universe at redshift z, in g / cm^3. Will convert
 """
     ρ_Λ([u::UnitLike,], c::AbstractCosmology, z)
     ρ_Λ([u::UnitLike,], z,h,Ω_Λ,w0=-1,wa=0)
-The dark energy density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
+The dark energy density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided. For a general dark energy equation of state ``w(z)``,
+```math
+\\rho_\\Lambda(z) = \\rho_{\\Lambda,0} \\ \\exp \\left[  3 \\int_0^z  \\frac{1+w \\left( z^\\prime\\right)}{1+z^\\prime} \\ dz^\\prime \\ \\right]
+```
+For constant ``w``, this reduces to
+```math
+\\rho_\\Lambda(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{\\Lambda,0} \\ \\left(1+z\\right)^{3\\left(1+w\\right)} \\ \\text{g/cm}^3 
+```
+and for a cosmological constant ``w=-1``,
 ```math
 \\rho_\\Lambda(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{\\Lambda,0} \\ \\text{g/cm}^3 
 ```
-for a cosmological constant. For more general dark energy equations of state, see [`de_density_scale`](@ref Cosmology.de_density_scale).
+for a cosmological constant. For more general dark energy equations of state,
+
+
+See also [`de_density_scale`](@ref Cosmology.de_density_scale).
 """
 ρ_Λ(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_Λ(c) / de_density_scale(c,z) * u.g/u.cm^3
 ρ_Λ(z,h,Ω_Λ,w0=-1,wa=0) = constants.RHO_C_Z0_CGS * h^2 * Ω_Λ / de_density_scale(z,w0,wa) * u.g/u.cm^3
