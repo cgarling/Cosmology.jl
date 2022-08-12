@@ -1,0 +1,2 @@
+# [Integration with Unitful.jl](@id units)
+`Cosmology.jl` depends on [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) and [`UnitfulAstro.jl`](https://github.com/JuliaAstro/UnitfulAstro.jl) and supports `Unitful` output for most methods.

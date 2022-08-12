@@ -35,13 +35,13 @@ export cosmology,
     lookback_time,
     scale_factor, ∇scale_factor,
     ρ_c, ρ_m, ρ_b, ρ_dm, ρ_Λ, ρ_γ, ρ_ν, ρ_r,
-    n_nu,
+    # n_nu,
     T_nu, T_cmb,
     # nu_relative_density,
     # de_density_scale,
     z_at_value,
-    h, Ω_m, Ω_dm, Ω_b, Ω_k, Ω_γ, Ω_ν, Ω_r, Ω_Λ, m_nu, Neff,# Ω_sum,
-    w,
+    Ω_m, Ω_dm, Ω_b, Ω_k, Ω_γ, Ω_ν, Ω_r, Ω_Λ, m_nu, Neff,# Ω_sum,
+    #h, w,
     sound_horizon, matter_radiation_equality
     # setup_growth, growth_integral,
     # concentration #massfunc_dndm, NFW, ρ, ∇ρ, ρmean, ∇ρmean, enclosedMass, Φ, ∇Φ, Δvir # halo is now a separate module so it should be imported separately.
@@ -51,11 +51,15 @@ include("constants.jl")
 import ..constants
 
 #### type definitions #########################################################################################
+""" `AbstractCosmology` is the base type for all cosmologies. """
 abstract type AbstractCosmology end
 Base.Broadcast.broadcastable(m::AbstractCosmology) = Ref(m)
 # we could do more efficient, automatic broadcasting with StructArrays, but already hand-coded the iterables which is perhaps regrettable. Could do a refactoring if necessary. 
+""" `AbstractClosedCosmology` is the base type for all closed cosmologies (Ω_k<0). """
 abstract type AbstractClosedCosmology <: AbstractCosmology end
+""" `AbstractFlatCosmology` is the base type for all flat cosmologies (Ω_k=0). """
 abstract type AbstractFlatCosmology <: AbstractCosmology end
+""" `AbstractOpenCosmology` is the base type for all open cosmologies (Ω_k<0). """
 abstract type AbstractOpenCosmology <: AbstractCosmology end
 
 #############################################################################
@@ -216,7 +220,7 @@ include("standard_functions.jl")
 Converts various forms of `m_nu` to `NTuple`s so they can be stored in the cosmology structs. Currently mixed units in a `Tuple` is not supported. If providing units in the argument, they should all be the same. 
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(import Cosmology: m_nu; import Unitful)
 julia> x=[0.0,0.0,0.06];
 
 julia> m_nu(x)
@@ -227,15 +231,15 @@ julia> x=[0.0,0.0,0.06]*Unitful.eV;
 julia> m_nu(x)
 (0.0, 0.0, 0.06)
 
-julia> x=(0.0,0.0,0.06)
+julia> x=(0.0,0.0,0.06);
 
 julia> m_nu(x) === x
 true
 
-julia> x=(0.0,0.0,0.06) .* u.eV;
+julia> x=(0.0,0.0,0.06) .* Unitful.eV;
 
 julia> m_nu(x)
-(0.0,0.0,0.06)
+(0.0, 0.0, 0.06)
 
 julia> m_nu(0.06)
 (0.06,)
@@ -273,7 +277,9 @@ Constructs the proper `AbstractCosmology` type depending on the passed parameter
  - `m_ν` - Neutrino masses 
 
 # Examples
-"""
+
+!!! note
+    Inclusion of massive neutrinos is expensive. For example, for the default massive neutrino parameters `c=cosmology()`, the evaluation of `E(c, 0.8)` takes 114.613 ns, while `E( cosmology(m_ν=(0.0,),N_eff=3.046), 0.8)` takes 6.986 ns and `E( cosmology(m_ν=(0.0,),N_eff=0), 0.8)` takes 6.095 ns. This makes a significant difference in methods that involve integrations (e.g., [`comoving_radial_dist`](@ref)). If speed is a concern, consider if you can neglect neutrinos for your calculation. """
 function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z = 0 / 100 [km/sec/Mpc]
                    OmegaK::Number = 0,          # Energy density of curvature in units of the critical density at z=0. 
                    OmegaM::Number = 0.30966,    # Energy density of matter in units of the critical density at z=0. 
