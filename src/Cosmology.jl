@@ -195,57 +195,11 @@ function WCDM(h::T, Ω_k::T, Ω_Λ::T, Ω_m::T, Ω_b::T, Tcmb0::T, Neff::T, m_nu
         FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_nu, w0, wa)
     end
 end
-#############################################################################
-
-# """
-#     T_cmb(x::Number)
-#     T_cmb(x::u.Temperature)
-#     T_cmb(x::Nothing)
-# Converts various forms of CMB temperature to basic numbers so they can be stored in the cosmology structs. If `x` isa a `u.Temperature`, it is converted to Kelvin and returned unitless.
-
-# ```jldoctest
-# julia> T_cmb(2.0)
-# 2.0
-
-# julia> T_cmb(2.0*Unitful.K)
-# 2.0
-
-# julia> T_cmb(nothing)
-# 0
-
-# ```
-# """
-# T_cmb(x::Number) = x
-# T_cmb(x::u.Temperature) = u.ustrip(u.K,x)
-# T_cmb(x::Nothing) = 0
-
-# """
-#     Ω_γ(h::Number,Tcmb0::Union{Number,Unitful.Temperature,Nothing})
-# Computes the energy density of photons at the present-day in units of the critical density from the dimensionless hubble factor [`h`](@ref) and the CMB temperature at the present-day `Tcmb0` in Kelvin. If `Tcmb0===nothing`, returns `zero(h)`.
-
-# # Examples
-# ```jldoctest
-# julia> Ω_γ(0.6766f0,2.7f0)
-# 5.2026688f-5
-
-# julia> Ω_γ(0.6766,2.7)
-# 5.202667940291393e-5
-
-# julia> Ω_γ(0.6766,2.7*Unitful.K)
-# 5.202667940291393e-5
-
-# julia> Ω_γ(0.6766,nothing)
-# 0.0
-# ```
-# """
-# Ω_γ(h::T,Tcmb0::T) where T<:Number = T(4.481620089297254e-7) * Tcmb0^4 / h^2
-# Ω_γ(h::Number,Tcmb0::Number) = Ω_γ(promote(h,Tcmb0)...)
-# Ω_γ(h::Number,Tcmb0::u.Temperature) = Ω_γ(promote(h,T_cmb(Tcmb0))...)
-# Ω_γ(h::Number,Tcmb0::Nothing) = zero(h)
 
 #############################################################################
 include("standard_functions.jl")
 #############################################################################
+
 """
     m_nu(x::AbstractArray)
     m_nu(x::AbstractArray{<:Unitful.Energy})
