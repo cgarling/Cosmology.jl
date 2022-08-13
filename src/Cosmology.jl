@@ -1,8 +1,15 @@
 module Cosmology
 
-import Unitful as u
-import UnitfulAstro as ua
-import UnitfulEquivalences as ue
+# import Unitful as u
+# import UnitfulAstro as ua
+# import UnitfulEquivalences as ue
+import Unitful
+const u = Unitful
+import UnitfulAstro
+const ua = UnitfulAstro
+import UnitfulEquivalences
+const ue = UnitfulEquivalences
+
 import Roots: find_zero, Bisection
 import QuadGK: quadgk
 
