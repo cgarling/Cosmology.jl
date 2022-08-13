@@ -27,8 +27,8 @@ export cosmology,
     # nu_relative_density,
     # de_density_scale,
     z_at_value,
-    Ω_m, Ω_dm, Ω_b, Ω_k, Ω_γ, Ω_ν, Ω_r, Ω_Λ, m_nu, Neff,# Ω_sum,
-    #h, w,
+    Ω_m, Ω_dm, Ω_b, Ω_k, Ω_γ, Ω_ν, Ω_r, Ω_Λ, 
+    #m_nu, Neff, h, w,
     sound_horizon, matter_radiation_equality
 
 include("utils.jl")
@@ -251,7 +251,11 @@ m_nu(x::NTuple{N,T}) where {N,T<:u.Energy} = ntuple(i->u.ustrip(u.eV,x[i]),Val(N
 m_nu(x::NTuple{N,T}) where {N,T<:u.Mass} = ntuple(i->u.ustrip(u.eV,x[i],ue.MassEnergy()),Val(N))
 m_nu(x::Number) = (x,)
 m_nu(x::Nothing) = (0,)
+
 #############################################################################
+# Main cosmology function
+#############################################################################
+
 """
     cosmology(;h = 0.6766, OmegaK = 0, OmegaM = 0.30966, OmegaB = 0.04897, OmegaG = nothing, Tcmb0 = 2.7255, w0 = -1, wa = 0, N_eff = 3.046, m_ν=(0.0,0.0,0.06))
 
@@ -267,7 +271,7 @@ Constructs the proper `AbstractCosmology` type depending on the passed parameter
  - `w0` - CPL dark energy equation of state; `w = w0 + wa(1-a)`
  - `wa` - CPL dark energy equation of state; `w = w0 + wa(1-a)`
  - `N_eff` - Effective number of massless neutrino species; used to compute Ω_ν
- - `m_ν` - Neutrino masses 
+ - `m_ν` - Neutrino masses; should have length equal to `Int(floor(N_eff))` but this is not explicitly checked. If `N_eff==0` then `m_ν` isn't used for anything.
 
 # Examples
 
@@ -315,15 +319,15 @@ function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z =
   
     # Do some type conversions; see above definitions
     m_ν = m_nu(m_ν)
+    (!iszero(N_eff) && (length(m_ν) != n_nu(N_eff))) && @warn "Length of `m_ν` should typically be equal to `Int(floor(N_eff))` but is not. Did you make a mistake?" 
     Tcmb0 = T_cmb0(h,Tcmb0,OmegaG)
     OmegaG = Ω_γ0(h,OmegaG,Tcmb0)
 
     iszero(OmegaG) ? (OmegaR=zero(OmegaM)) : (OmegaR=OmegaG * (1 + nu_relative_density(m_ν, N_eff, u.ustrip(u.K,T_nu(Tcmb0)), n_nu(N_eff))))
-    # OmegaR = OmegaG * (1 + nu_relative_density(m_ν, N_eff, u.ustrip(u.K,T_nu(Tcmb0)), n_nu(N_eff)))
     OmegaL = 1 - OmegaK - OmegaM - OmegaR # calculate the dark energy density
     ## Type conversions ###############################################################################################
     # I think I am moving these the to the other type constructors? Not 100% sure if I need to do a type conversion here or not
-    ### Initializing structs; this is not type-stable
+    ### Initializing structs; this is not type-stable but that's okay
     if !(w0 == -1 && wa == 0)
         return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaB, Tcmb0, N_eff, m_ν, w0, wa)
     end
@@ -336,8 +340,8 @@ function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z =
     end
 end
 
-# include("growth.jl")                       
 include("default_cosmologies.jl")
+# include("growth.jl")                       
 # include("halo.jl")
 # using .halo
 # include("peaks.jl")
