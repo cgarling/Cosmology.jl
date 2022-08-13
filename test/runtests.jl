@@ -12,7 +12,7 @@ const dist_rtol = 1e-6
 const age_rtol = 2e-4
 const density_rtol=1e-4
 # Integrating a unitful function would require UnitfulIntegration.jl.  Without using it, we
-# strip the units away from the integrand function
+# strip the units away from the integrand function; for comoving_volume
 integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
 
 @testset verbose = true "cosmo" begin
@@ -189,11 +189,6 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
         @test T_cmb(c,0) == 2.75 * u.K
         @test T_cmb(c,1.) ≈ 5.5 * u.K
         @test z_at_value(c, scale_factor, 0.8) ≈ 0.25
-        @test Cosmology.isscalar(1) == true
-        @test Cosmology.isscalar([1,2]) == false
-        @test Cosmology.isscalar(1*u.s) == true
-        @test length(Cosmology.logspace(1e-2,1e2,length=100)) == 100
-        @test (x=Cosmology.logspace(1e-2,1e2,step=0.1); log10(x[2])-log10(x[1])) ≈ 0.1
     end
 
     # @testset "Halo" begin

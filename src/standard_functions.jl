@@ -1010,7 +1010,6 @@ julia> sound_horizon(Cosmology.Planck18)
 ```
 """
 sound_horizon(c::AbstractCosmology) = (h2 = h(c)^2; 44.5 * log(9.83 / Ω_m(c) / h2) / sqrt(1.0 + 10.0 * (Ω_b(c) * h2)^0.75) * ua.Mpc)
-# sound_horizon(c::AbstractCosmology) = 44.5 * log(9.83 / c.Ω_m / c.h^2) / sqrt(1.0 + 10.0 * (c.Ω_b * c.h^2)^0.75) * ua.Mpc
 
 """
     matter_radiation_equality(c::AbstractCosmology)
@@ -1023,6 +1022,7 @@ julia> matter_radiation_equality(Cosmology.Planck18)
 ```
 """
 matter_radiation_equality(c::AbstractCosmology) = 2.5e4 * Ω_m(c) * h(c)^2 / (u.ustrip(u.K,T_cmb(c))/2.7)^4
+# cant figure out where this came from
 # matter_radiation_equality(c::AbstractCosmology) = 3600 * (Ω_m(c) * h(c)^2 / 0.15) - 1
 
 #########################################################################################
