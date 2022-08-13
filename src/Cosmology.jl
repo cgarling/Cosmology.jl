@@ -340,17 +340,8 @@ function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z =
     end
 end
 
+#############################################################################
 include("default_cosmologies.jl")
-# include("growth.jl")                       
-# include("halo.jl")
-# using .halo
-# include("peaks.jl")
-# using .peaks
-# include("concentration.jl")
-# using .conc_module
-# include("hmf.jl")
-# using .hmf
-# include("nonlinear.jl")
-# using .nonlinear
+#############################################################################
 
 end # module
