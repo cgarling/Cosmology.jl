@@ -15,7 +15,7 @@ const density_rtol=1e-4
 # strip the units away from the integrand function; for comoving_volume
 integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
 
-@testset verbose = true "cosmo" begin
+@testset "Cosmology" begin
     @testset "FlatLCDM" begin
         c = cosmology(h=0.7, OmegaM=0.3, OmegaG=0)
         @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9144029437339u"Mpc" rtol = dist_rtol
