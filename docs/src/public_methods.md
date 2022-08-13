@@ -1,15 +1,14 @@
-# [Methods](@id methods)
-## Public Methods
+# [Public Methods](@id methods)
 The following methods are part of our publicly exported API.
 
-### Temperatures
+## Temperatures
 
 ```@docs
 T_cmb
 T_nu
 ```
 
-### Hubble Factors
+## Hubble Factors
 
 ```@docs
 E
@@ -18,7 +17,7 @@ hubble_time
 hubble_dist
 ```
 
-### Lengths and Volumes
+## Lengths and Volumes
 
 ```@docs
 comoving_radial_dist
@@ -31,7 +30,7 @@ comoving_volume_element
 sound_horizon
 ```
 
-### Times
+## Times
 
 ```@docs
 age
@@ -39,7 +38,7 @@ lookback_time
 matter_radiation_equality
 ```
 
-### Densities
+## Densities
 
 ```@docs
 ρ_c
@@ -60,27 +59,15 @@ matter_radiation_equality
 Ω_Λ
 ```
 
-### Equation Solving
+## Equation Solving
 
 ```@docs
 z_at_value
 ```
 
-### Miscellaneous
+## Miscellaneous
 
 ```@docs
 scale_factor
 ∇scale_factor
-```
-
-# Private Methods
-The following methods are used internally but not exported. They are not guaranteed to have stable APIs or be properly documented.
-
-```@docs
-Cosmology.nu_relative_density
-Cosmology.a2E
-Cosmology.hubble_dist0
-Cosmology.hubble_time0
-Cosmology.w
-Cosmology.de_density_scale
 ```

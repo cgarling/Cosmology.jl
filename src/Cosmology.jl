@@ -276,7 +276,7 @@ Constructs the proper `AbstractCosmology` type depending on the passed parameter
 # Examples
 
 !!! info
-    I am aware this function is not type-stable; it will return different concrete subtypes of `AbstractCosmology` depending on the parameters you pass. This is known. If you want to, you can access constructors of the concrete types directly; this can make creation of new instances much faster. For example, `c=cosmology()` takes ~300 ns, while `FlatLCDM(c.h,c.Ω_Λ,c.Ω_m,c.Ω_b,c.Tcmb0,c.Neff,c.m_nu)` takes ~1 ns. If you REALLY need this speed, you should use the basic constructors.
+    This function is not type-stable; it will return different concrete subtypes of `AbstractCosmology` depending on the parameters you pass. This incurs a performance penalty. If you want to, you can access constructors of the concrete types directly; this can make creation of new instances much faster. For example, `c=cosmology()` takes ~300 ns, while `FlatLCDM(c.h,c.Ω_Λ,c.Ω_m,c.Ω_b,c.Tcmb0,c.Neff,c.m_nu)` takes ~1 ns. If you REALLY need this speed, you should use the basic constructors.
 !!! note
     Inclusion of massive neutrinos is expensive. For example, for the default massive neutrino parameters `c=cosmology()`, the evaluation of `E(c, 0.8)` takes 114.613 ns, while `E( cosmology(m_ν=(0.0,),N_eff=3.046), 0.8)` takes 6.986 ns and `E( cosmology(m_ν=(0.0,),N_eff=0), 0.8)` takes 6.095 ns. This makes a significant difference in methods that involve integrations (e.g., [`comoving_radial_dist`](@ref)). If speed is a concern, consider if you can neglect neutrinos for your calculation. """
 function cosmology(;h::Number = 0.6766,         # Scalar; Hubble constant at z = 0 / 100 [km/sec/Mpc]

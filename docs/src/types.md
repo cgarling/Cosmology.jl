@@ -27,6 +27,14 @@ Cosmology.WCDM
 
 ## [Pre-Constructed Instances](@id default_cosmologies)
 These are constant instances that implement published cosmological results.
+!!! note
+    These instances are not exported, so you must import them explicitly; e.g,
+
+```@example
+import Cosmology: Planck18
+Planck18
+```
+
 ```@docs
 Cosmology.Planck18
 Cosmology.Planck15

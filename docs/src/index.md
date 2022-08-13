@@ -2,5 +2,5 @@
 
 ```@index
 Modules = [Cosmology]
-Pages = ["types.md","methods.md"]
+Pages = ["types.md","public_methods.md","private_methods.md"]
 ```

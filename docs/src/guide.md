@@ -49,7 +49,14 @@ import UnitfulAstro as ua
 Methods with return values that have attached units should also have this conversion interface. See [the section on methods](@ref methods) for a full list of defined methods.
 
 ## Neutrinos
-This package supports massive neutrinos by assuming that the total mass in neutrinos is split between the species. For greatest efficiency you should pass `m_ν` to `cosmology` or one of the basic constructors as an `NTuple{N,T}`; that is, a tuple where all the elements are of the same concrete type. Internally they are stored in eV but with the units stripped, so a good argument would be `m_ν=(0.0,0.0,0.06)` for 3 neutrino species with one massive species with mass 0.06 eV. You can provide neutrino masses to [`cosmology`](@ref Cosmology.cosmology) with energy or mass units, but to the [basic constructors](@ref concrete_types).
+This package supports massive neutrinos by assuming that the total mass in neutrinos is split between the species. For greatest efficiency you should pass `m_ν` to `cosmology` or one of the basic constructors as an `NTuple{N,T}`; that is, a tuple where all the elements are of the same concrete type. Internally they are stored in eV but with the units stripped, so a good argument would be `m_ν=(0.0,0.0,0.06)` for 3 neutrino species with one massive species with mass 0.06 eV. You can provide neutrino masses to [`cosmology`](@ref Cosmology.cosmology) and the [basic constructors](@ref concrete_types) with energy or mass units as well;
+
+```@example guide
+cosmology(m_ν=(0.0,0.0,0.06) .* u.eV)
+```
+```@example guide
+FlatLCDM(0.6766, 0.6888463055445425, 0.30966, 0.04897, 2.7255, 3.046, (0.0,0.0,0.06) .* u.eV)
+```
 
 There is currently some weirdness with how massless neutrinos are dealt with; for now, I recommend that you make the length of the `m_ν` iterable you provide equal to the result of `Cosmology.n_nu(N_eff)` for the effective number of neutrino species you choose. For example, if `N_eff=3.046` then `Cosmology.n_nu(N_eff)=3` and your `m_ν` iterable should have length 3. This is done for you in the [pre-constructed instances](@ref default_cosmologies). A warning will be issued by [`cosmology`](@ref Cosmology.cosmology) if `length(m_ν) != Cosmology.n_nu(N_eff)` and `!iszero(N_eff)`, but none of the basic constructors contain such checks. The implementation of massive neutrinos is open to change.
 

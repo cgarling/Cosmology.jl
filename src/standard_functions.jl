@@ -294,7 +294,7 @@ julia> H(Cosmology.Planck18,1.0)
 H(c::AbstractCosmology, z::Real) = 100 * h(c) * E(c, z) * u.km / u.s / ua.Mpc
 """
     hubble_dist0(c::AbstractCosmology)
-Calculate the Hubble distance at present-day in Mpc, defined as the speed of light times the Hubble time.
+Return the Hubble distance at present-day in Mpc, defined as the speed of light times the [`Hubble time`](@ref Cosmology.hubble_time0) at present-day.
 ```math
     D_0 = \\frac{c}{H_0}
 ```
@@ -308,7 +308,7 @@ julia> Cosmology.hubble_dist0(Cosmology.Planck18)
 hubble_dist0(c::AbstractCosmology) = partype(c)(2997.92458) / h(c) * ua.Mpc # constant is speed of light in km/s divided by 100
 """
     hubble_dist(c::AbstractCosmology, z::Real)
-Return the speed of light times the Hubble time at redshift `z` in Mpc.
+Return the speed of light times the [`Hubble time`](@ref Cosmology.hubble_time) at redshift `z` in Mpc.
 ```math
     D(z) = \\frac{c}{H(z)}
 ```
@@ -322,7 +322,7 @@ hubble_dist(c::AbstractCosmology, z::Real) = hubble_dist0(c) / E(c, z)
 
 """
     hubble_time0(c::AbstractCosmology)
-Return ``\\frac{1}{\\text{H}_0}`` in units of Gyr.
+Return ``\\frac{1}{\\text{H}_0}`` in Gyr.
 
 # Examples
 ```jldoctest
@@ -333,7 +333,7 @@ julia> Cosmology.hubble_time0(Cosmology.Planck18)
 hubble_time0(c::AbstractCosmology) =  partype(c)(9.777922216807893) / h(c) * u.Gyr # 9.77814 # 9.777922216807893 / h(c) * u.Gyr
 """
     hubble_time(c::AbstractCosmology, z::Real)
-Return ``\\frac{1}{\\text{H}\\left(z\\right)}`` in units of Gyr.
+Return ``\\frac{1}{\\text{H}\\left(z\\right)}`` in Gyr.
 
 # Examples
 ```jldoctest
@@ -413,8 +413,16 @@ end
 
 Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to its angular size in radians, as seen by an observer at `z₁`.  Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if provided. kws are integration options passed to quadgk.
 
+```math
+\\begin{aligned}
+D_A(z_1,z_2) &= \\frac{D_T(z_1, z_2)}{1+z_2} = D_T(z_1, z_2) \\, a(z_2) \\newline
+D_A(z) &= \\frac{D_T(z)}{1+z} = D_T(z) \\, a(z)
+\\end{aligned}
+```
+where ``D_T`` is the [`comoving transverse distance`](@ref Cosmology.comoving_transverse_dist) and `a` is the [`scale factor`](@ref Cosmology.scale_factor). 
+
 # Examples
-``jldoctest
+```jldoctest
 julia> angular_diameter_dist(Cosmology.Planck18, 1.0)
 1697.8172355757813 Mpc
 
@@ -433,7 +441,12 @@ angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
 """
     luminosity_dist([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
-Bolometric luminosity distance in Mpc at redshift `z`. Will convert to compatible unit `u` if provided. kws are integration options passed to quadgk.
+Bolometric luminosity distance in Mpc at redshift `z`. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
+
+```math
+D_L(z) = D_T(z) \\times \\left(1 + z\\right) = \\frac{D_T(z)}{a\\left(z\\right)}
+```
+where ``D_T`` is the [`comoving transverse distance`](@ref Cosmology.comoving_transverse_dist) and `a` is the [`scale factor`](@ref Cosmology.scale_factor). 
 
 # Examples
 ```jldoctest
@@ -450,7 +463,12 @@ luminosity_dist(c::AbstractCosmology, z; kws...) =
 """
     distmod(c::AbstractCosmology, z; kws...)
 
-Distance modulus in magnitudes at redshift `z`. kws are integration options passed to quadgk.
+Distance modulus in magnitudes at redshift `z`. `kws...` are integration options passed to `QuadGK.quadgk`.
+
+```math
+\\mu(z) = 5 \\times \\text{log}_{10} \\left( D_L(z) \\right) + 25
+```
+where ``D_L(z)`` is the [`luminosity distance`](@ref Cosmology.luminosity_dist) in units of Mpc.
 
 # Examples
 ```jldoctest
@@ -459,8 +477,7 @@ julia> distmod(Cosmology.Planck18,1.0)
 
 ```
 """
-distmod(c::AbstractCosmology, z; kws...) =
-    5 * log10(luminosity_dist(c, z; kws...) / ua.Mpc) + 25
+distmod(c::AbstractCosmology, z; kws...) = 5 * log10( u.ustrip(ua.Mpc, luminosity_dist(c, z; kws...))) + 25
 
 #######################################################################################
 # Volumes
@@ -469,7 +486,7 @@ distmod(c::AbstractCosmology, z; kws...) =
 """
     comoving_volume([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
-Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided. kws are integration options passed to `QuadGK.quadgk`.
+Comoving volume in Gpc^3 at redshift `z`. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
 
 # Examples
 ```jldoctest
@@ -500,7 +517,7 @@ end
 """
     comoving_volume_element([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
-Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit `u` if provided. kws are integration options passed to quadgk.
+Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
 
 # Examples
 ```jldoctest
@@ -523,7 +540,7 @@ T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws..
 """
     age([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
-Return the age of the universe in Gyr at redshift `z`. Will convert to compatible unit `u` if provided. kws are integration options passed to quadgk.
+Return the age of the universe in Gyr at redshift `z`. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
 
 # Examples
 ```jldoctest
@@ -539,7 +556,7 @@ age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z)
 """
     lookback_time([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
-Difference between age at redshift 0 and age at redshift `z` in Gyr. Will convert to compatible unit `u` if provided. kws are integration options passed to quadgk.
+Difference between age at redshift 0 and age at redshift `z` in Gyr. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
 
 # Examples
 ```jldoctest
@@ -981,6 +998,10 @@ end
 """
     sound_horizon(c::AbstractCosmology)
 Return the sound horizon length (in Mpc), given by Equation 26 in Eisenstein & Hu 1998.
+
+```math
+s = \\frac{44.5 \\, \\text{log} \\left( 9.83 / \\Omega_0 / h^2 \\right)}{ \\sqrt{ 1 + 10 \\, \\left( \\Omega_b \\, h^2 \\right)^{3/4} } } \\ \\text{Mpc}
+```
 
 # Examples
 ```jldoctest
