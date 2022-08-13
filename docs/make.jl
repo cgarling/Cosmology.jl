@@ -10,6 +10,6 @@ makedocs(
     modules = [Cosmology],
     format = Documenter.HTML(;prettyurls = get(ENV, "CI", nothing) == "true"),
     authors = "Chris Garling",
-    pages = ["guide.md","types.md","public_methods.md","constants.md","integrated_packages.md","private_methods.md","index.md"],#,"api.md"],
+    pages = ["guide.md","types.md","public_methods.md","integrated_packages.md","private_methods.md","constants.md","index.md"],#,"api.md"],
     doctest=true
 )

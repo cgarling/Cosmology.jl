@@ -10,7 +10,7 @@ const G_CGS = 6.6743e-8 # Gravitational constant in cm^3 / g / s^2, CODATA2018
 const KPC_CM = 3.0856775814913673e21 # kiloparsec in cm, CODATA2018
 """ Number of kilometers in a kiloparsec. """
 const KPC_KM = 3.0856775814913673e16 # kiloparsec in km, CODATA2018
-""" Linear overdensity threshold for halo collapse for the spherical top-hat collapse model, ``3/5*(3π/2)^{2/3}``. """
+""" Linear overdensity threshold for halo collapse for the spherical top-hat collapse model, ``3/5 \\times (3π/2)^{2/3}``. """
 const DELTA_COLLAPSE = 1.686470199841145 # linear overdensity threshold for halo collapse for the spherical top-hat collapse model, 3/5*(3π/2)^(2/3)
 """ Prefactor for the critical density of the Universe, in units of g / cm^3,
 ```math
