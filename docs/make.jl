@@ -13,3 +13,9 @@ makedocs(
     pages = ["guide.md","types.md","public_methods.md","integrated_packages.md","private_methods.md","constants.md","index.md"],#,"api.md"],
     doctest=true
 )
+
+deploydocs(;
+    repo = "github.com/cgarling/Cosmology.jl.git",
+    versions = ["stable" => "v^", "v#.#"],
+    push_preview=true,
+)
