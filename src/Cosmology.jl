@@ -31,11 +31,11 @@ export cosmology,
     #m_nu, Neff, h, w,
     sound_horizon, matter_radiation_equality
 
-# include("utils.jl")
 include("constants.jl")
 import ..constants
 
-#### type definitions #########################################################################################
+#### Abstract Type Definitions #######################################################
+
 """ `AbstractCosmology` is the base type for all cosmologies. """
 abstract type AbstractCosmology end
 Base.Broadcast.broadcastable(m::AbstractCosmology) = Ref(m)
@@ -48,6 +48,7 @@ abstract type AbstractFlatCosmology <: AbstractCosmology end
 abstract type AbstractOpenCosmology <: AbstractCosmology end
 
 #############################################################################
+
 """
     FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν)
 Type for flat (Ω_k=0) ΛCDM cosmologies (w0=-1, wa=0). """
@@ -68,7 +69,9 @@ function FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Nef
     m_ν = convert(NTuple{length(m_ν),T},m_ν) # Convert the eltype of the NTuple to the correct thing
     return FlatLCDM(h, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν) 
 end
+
 #############################################################################
+
 """
     ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν)
 Type for closed (Ω_k<0) ΛCDM cosmologies (w0=-1, wa=0). """
@@ -90,7 +93,9 @@ function ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tc
     m_ν = convert(NTuple{length(m_ν),T},m_ν) # Convert the eltype of the NTuple to the correct thing
     return ClosedLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν) 
 end
+
 #############################################################################
+
 """
     OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb0::Real, Neff::Real, m_ν)
 Type for open (Ω_k>0) ΛCDM cosmologies (w0=-1, wa=0). """
@@ -112,8 +117,11 @@ function OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_b::Real, Tcmb
     m_ν = convert(NTuple{length(m_ν),T},m_ν) # Convert the eltype of the NTuple to the correct thing
     return OpenLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_b, Tcmb0, Neff, m_ν) 
 end
+
 #############################################################################
-# the same cosmologies but with w0-wa-state dark energy
+# Cosmologies with the w0-wa dark energy equation of state
+#############################################################################
+
 for c in ("Flat", "Open", "Closed")
     name = Symbol("$(c)WCDM")
     @eval begin
