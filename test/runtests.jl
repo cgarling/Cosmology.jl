@@ -1,8 +1,8 @@
 using Cosmology
-# using Cosmology.halo
 using Test
-import Unitful as u
+# import Unitful as u
 using Unitful
+const u = Unitful
 using UnitfulAstro
 import QuadGK: quadgk
 
