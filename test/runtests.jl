@@ -5,6 +5,15 @@ using Unitful
 const u = Unitful
 using UnitfulAstro
 import QuadGK: quadgk
+using Documenter
+
+# the doctest for z_at_value will throw deprecation warnings so we need
+# to set depwarn=no in CI; equivalent for local testing is
+# import Pkg
+# import Cosmology
+# Pkg.test("Cosmology";julia_args=["--depwarn=no"])
+DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology; import Unitful; import UnitfulAstro); recursive=true)
+doctest(Cosmology,manual=false)
 
 # values from http://icosmos.co.uk/
 
