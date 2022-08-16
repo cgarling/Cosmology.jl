@@ -732,11 +732,11 @@ The photon matter density of the universe at redshift z, in g / cm^3. Will conve
 
 # Examples
 ```jldoctest
-julia> ρ_γ(Cosmology.Planck18, 0.0)
-4.645092477570597e-34 g cm^-3
+julia> ρ_γ(Cosmology.Planck18, 0.0) ≈ 4.645092477570597e-34 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_γ(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-0.006863412319931541 M⊙ kpc^-3
+julia> ρ_γ(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 0.006863412319931541 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 ```
 """
 ρ_γ(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_γ(c) * (1 + z)^4 * u.g/u.cm^3
@@ -772,11 +772,11 @@ The energy density of the universe in relativistic species at redshift z, in g /
 
 # Examples
 ```jldoctest
-julia> ρ_r(Cosmology.Planck18, 0.0)
-1.2844001178620257e-32 g cm^-3
+julia> ρ_r(Cosmology.Planck18, 0.0) ≈ 1.2844001178620257e-32 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_r(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-0.18977808590941606 M⊙ kpc^-3
+julia> ρ_r(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 0.18977808590941606 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 
 julia> ρ_r(Cosmology.Planck18, 0.0) ≈ ρ_γ(Cosmology.Planck18, 0.0) + ρ_ν(Cosmology.Planck18, 0.0)
 true
@@ -878,11 +878,11 @@ Energy density of photons at redshift `z` in units of the critical density. Calc
 
 # Examples
 ```jldoctest
-julia> Ω_γ(Cosmology.Planck18)
-5.4020151371393475e-5
+julia> Ω_γ(Cosmology.Planck18) ≈ 5.4020151371393475e-5
+true
 
-julia> Ω_γ(Cosmology.Planck18, 10000.0)
-0.44150560915009124
+julia> Ω_γ(Cosmology.Planck18, 10000.0) ≈ 0.44150560915009124
+true
 ```
 """
 Ω_γ(c::AbstractCosmology) = partype(c)(4.481620089297254e-7) * u.ustrip(u.K,T_cmb(c))^4 / h(c)^2
@@ -895,11 +895,11 @@ Energy density in neutrinos at redshift `z` in units of the critical density. Wh
 
 # Examples
 ```jldoctest
-julia> Ω_ν(Cosmology.Planck18)
-0.0014396743040860382
+julia> Ω_ν(Cosmology.Planck18) ≈ 0.0014396743040860382
+true
 
-julia> Ω_ν(Cosmology.Planck18, 10000.0)
-0.30543520244776484
+julia> Ω_ν(Cosmology.Planck18, 10000.0) ≈ 0.30543520244776484
+true
 ```
 """
 Ω_ν(c::AbstractCosmology) = Ω_γ(c) * nu_relative_density(c)
@@ -913,11 +913,11 @@ Energy density in radiation at redshift `z` in units of the critical density. Ev
 
 # Examples
 ```jldoctest
-julia> Ω_r(Cosmology.Planck18)
-0.0014936944554574316
+julia> Ω_r(Cosmology.Planck18) ≈ 0.0014936944554574316
+true
 
-julia> Ω_r(Cosmology.Planck18, 10000.0)
-0.7469408115978561
+julia> Ω_r(Cosmology.Planck18, 10000.0) ≈ 0.7469408115978561
+true
 
 julia> Ω_r(Cosmology.Planck18, 10000.0) == Ω_γ(Cosmology.Planck18, 10000.0) + Ω_ν(Cosmology.Planck18, 10000.0)
 true
@@ -1017,8 +1017,8 @@ Return the redshift of matter-radiation equality. This is computed as Equation 2
 
 # Examples
 ```jldoctest
-julia> matter_radiation_equality(Cosmology.Planck18)
-3413.1817608491015
+julia> matter_radiation_equality(Cosmology.Planck18) ≈ 3413.1817608491015
+true
 ```
 """
 matter_radiation_equality(c::AbstractCosmology) = 2.5e4 * Ω_m(c) * h(c)^2 / (u.ustrip(u.K,T_cmb(c))/2.7)^4
