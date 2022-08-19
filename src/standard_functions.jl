@@ -955,7 +955,7 @@ julia> Ω_Λ(Cosmology.Planck18, 1.0)
 Find the redshift `z` at which `func(c,z) == fval` for cosmology instance `c`. This uses a numerical root finder and searches between `zmin` and `zmax`. Additional `kws...` are passed through to [`Roots.find_zero`](https://juliamath.github.io/Roots.jl/stable/reference/#Roots.find_zero).
 
 # Examples
-```jldoctest
+```julia
 julia> z_at_value(Cosmology.Planck18, scale_factor, 0.8) ≈ 0.25
 true
 
@@ -964,7 +964,7 @@ true
 ```
 !!! warning
     Not all cosmological methods defined in this module are monotonic with redshift, such that there may not be a unique solution over the default `zmin->zmax` (e.g., [`angular_diameter_dist`](@ref Cosmology.angular_diameter_dist)). In this case, you need to make sure that `zmin` and `zmax` properly bracket the solution you are looking for.
-```jldoctest
+```julia
 julia> z_at_value(Cosmology.Planck18, angular_diameter_dist, 1250.0; zmin=1e-5, zmax=2.5)
 0.46668775101654764
 
