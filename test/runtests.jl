@@ -38,6 +38,28 @@ integrand(c, z) = 4pi*u.ustrip(comoving_volume_element(c, z))
     @test age(c,1,rtol=age_rtol) ≈ 5.751689848348662u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ 7.715337003613595u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
+    @test Cosmology.w0(c) == -1
+    @test Cosmology.wa(c) == 0
+    @test Cosmology.w(c,2.0) == -1
+    @test Cosmology.w(2.0,Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.w(c,2.0)
+    @test Cosmology.a2E(0.8,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.a2E(c,0.8)
+    @test Cosmology.E(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.E(c,2.0)
+
+    # Planck18 has neutrinos, baryons, dark matter, dark energy, and non-zero CMB temperature
+    let c=Cosmology.Planck18 
+        @test ρ_c(c,2.0) == ρ_c(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c))
+        @test ρ_m(c,2.0) == ρ_m(2.0,Cosmology.h(c),Ω_m(c))
+        @test ρ_b(c,2.0) == ρ_b(2.0,Cosmology.h(c),Ω_b(c))
+        @test ρ_dm(c,2.0) == ρ_dm(2.0,Cosmology.h(c),Ω_dm(c))
+        @test ρ_Λ(c,2.0) == ρ_Λ(2.0,Cosmology.h(c),Ω_Λ(c),Cosmology.w0(c),Cosmology.wa(c))
+        @test ρ_γ(c,2.0) == ρ_γ(2.0,Cosmology.h(c),Ω_γ(c))
+        @test ρ_ν(c,2.0) ≈ ρ_ν(2.0,Cosmology.h(c),u.ustrip(u.K,T_cmb(c)),Cosmology.Neff(c),Cosmology.m_nu(c))
+        @test ρ_r(c,2.0) ≈ ρ_r(2.0,Cosmology.h(c),u.ustrip(u.K,T_cmb(c)),Cosmology.Neff(c),Cosmology.m_nu(c))
+        @test Ω_m(c,2.0) == Ω_m(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c))
+        @test Ω_b(c,2.0) == Ω_b(2.0,Cosmology.h(c),Ω_m(c),Ω_b(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c))
+        @test Ω_dm(c,2.0) == Ω_dm(2.0,Cosmology.h(c),Ω_m(c),Ω_b(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c))
+
+    end
     # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
     # @test ρ_c(c,0) ≈ cosmo.constants.RHO_C_Z0_CGS * c.h^2 * u.g / u.cm^3 rtol = density_rtol
     # @test nu_relative_density(c, 0) ≈ 26.65068992843329
@@ -57,6 +79,13 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.545627298881875u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ 7.5161110299320155u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
+    @test Cosmology.w0(c) == -1
+    @test Cosmology.wa(c) == 0
+    @test Cosmology.w(c,2.0) == -1
+    @test Cosmology.w(2.0,Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.w(c,2.0)
+    @test Cosmology.a2E(0.8,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.a2E(c,0.8)
+    @test Cosmology.E(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.E(c,2.0)
+
     # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
     # @test nu_relative_density(c, 0) ≈ 26.65068992843329
 
@@ -76,6 +105,13 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.985745756567641u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ 7.936800843174262u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
+    @test Cosmology.w0(c) == -1
+    @test Cosmology.wa(c) == 0
+    @test Cosmology.w(c,2.0) == -1
+    @test Cosmology.w(2.0,Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.w(c,2.0)
+    @test Cosmology.a2E(0.8,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.a2E(c,0.8)
+    @test Cosmology.E(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.E(c,2.0)
+
     # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
     # @test nu_relative_density(c,0) ≈ 26.65068992843329
 end
@@ -94,6 +130,13 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.645434355117561u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ 7.543777588964826u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
+    @test Cosmology.w0(c) == -0.9
+    @test Cosmology.wa(c) == 0.1
+    @test Cosmology.w(c,2.0) ≈ -0.8333333333333334
+    @test Cosmology.w(2.0,Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.w(c,2.0)
+    @test Cosmology.de_density_scale(c,2.0) == Cosmology.de_density_scale(2.0,Cosmology.w0(c),Cosmology.wa(c))
+    @test Cosmology.a2E(0.8,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.a2E(c,0.8)
+    @test Cosmology.E(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.E(c,2.0)
     # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
     # @test nu_relative_density(c,0) ≈ 26.65068992843329
 end
@@ -112,6 +155,13 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.464935753468967u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ 7.3816586516400555u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
+    @test Cosmology.w0(c) == -0.9
+    @test Cosmology.wa(c) == 0.1
+    @test Cosmology.w(c,2.0) ≈ -0.8333333333333334
+    @test Cosmology.w(2.0,Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.w(c,2.0)
+    @test Cosmology.de_density_scale(c,2.0) == Cosmology.de_density_scale(2.0,Cosmology.w0(c),Cosmology.wa(c))
+    @test Cosmology.a2E(0.8,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.a2E(c,0.8)
+    @test Cosmology.E(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.E(c,2.0)
     # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
     # @test nu_relative_density(c,0) ≈ 26.65068992843329
 end
@@ -130,6 +180,13 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.847135987422405u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ 7.720730290879207u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0) rtol = age_rtol
+    @test Cosmology.w0(c) == -0.9
+    @test Cosmology.wa(c) == 0.1
+    @test Cosmology.w(c,2.0) ≈ -0.8333333333333334
+    @test Cosmology.w(2.0,Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.w(c,2.0)
+    @test Cosmology.de_density_scale(c,2.0) == Cosmology.de_density_scale(2.0,Cosmology.w0(c),Cosmology.wa(c))
+    @test Cosmology.a2E(0.8,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.a2E(c,0.8)
+    @test Cosmology.E(2.0,Cosmology.h(c),Ω_m(c),Ω_k(c),Ω_Λ(c),u.ustrip(u.K,T_cmb(c)),Cosmology.m_nu(c),Cosmology.Neff(c),Cosmology.w0(c),Cosmology.wa(c)) == Cosmology.E(c,2.0)
     # @test ρ_c(c,0) ≈ 9.21671792415115e-30 * u.g / u.cm^3 rtol = density_rtol
     # @test nu_relative_density(c,0) ≈ 26.65068992843329
 end

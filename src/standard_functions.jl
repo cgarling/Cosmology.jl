@@ -241,6 +241,9 @@ Calculate the scale factor at redshift `z`. The scale factor is defined as ``a=\
 ```jldoctest
 julia> scale_factor(1.0)
 0.5
+
+julia> scale_factor(Cosmology.Planck18, 1.0)
+0.5
 ```
 """
 scale_factor(z::Real) = 1 / (1 + z)
@@ -252,6 +255,9 @@ Calculate the derivative of the scale factor at redshift `z` with respect to `z`
 # Examples
 ```jldoctest
 julia> ∇scale_factor(1.0)
+-0.25
+
+julia> ∇scale_factor(Cosmology.Planck18, 1.0)
 -0.25
 ```
 """
@@ -744,7 +750,7 @@ true
 
 """
     ρ_ν([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_ν([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=nothing)
+    ρ_ν([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=Cosmology.n_nu(Neff))
 The neutrino energy density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_\\nu(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{\\nu,0} \\ (1+z)^4 \\ \\text{g/cm}^3 
@@ -760,11 +766,11 @@ julia> ρ_ν(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 ```
 """
 ρ_ν(c::AbstractCosmology,z) = ρ_γ(c,z) * nu_relative_density(c, z)
-ρ_ν(z,h,Tcmb0,Neff,m_nu,N_nu=nothing) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) )
+ρ_ν(z,h,Tcmb0,Neff,m_nu,N_nu=n_nu(Neff)) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) )
 
 """
     ρ_r([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_r([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=nothing)
+    ρ_r([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=Cosmology.n_nu(Neff))
 The energy density of the universe in relativistic species at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_r(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{r,0} \\ (1+z)^4 \\ \\text{g/cm}^3 
@@ -783,7 +789,7 @@ true
 ```
 """
 ρ_r(c::AbstractCosmology,z) = ρ_γ(c,z) * (1 + nu_relative_density(c, z))
-ρ_r(z,h,Tcmb0,Neff,m_nu,N_nu=nothing) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * (1.0 + nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) ) )
+ρ_r(z,h,Tcmb0,Neff,m_nu,N_nu=n_nu(Neff)) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * (1.0 + nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) ) )
 
 
 #############################################################################################
