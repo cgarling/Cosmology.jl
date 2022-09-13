@@ -609,8 +609,8 @@ de_density_scale(z::Real,w0::Real,wa::Real) = (zp1 = 1+z; zp1^(3 * (1 + w0 + wa)
 #############################################################################################
 
 """
-    ρ_c([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_c([u::UnitLike,], z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0)
+    ρ_c([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_c([u::UnitLike,] z, h, OmegaM, OmegaK, OmegaL, Tcmb0, m_nu, Neff, w0=-1, wa=0)
     ρ_c(h::Number,E::Number)
 The critical density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 
@@ -636,8 +636,8 @@ julia> ρ_c(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
     E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2 * u.g/u.cm^3
 
 """
-    ρ_m([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_m([u::UnitLike,], z,h,OmegaM)
+    ρ_m([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_m([u::UnitLike,] z, h, OmegaM)
 The matter density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_m(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{m,0} \\ (1+z)^3 \\ \\text{g/cm}^3 
@@ -656,8 +656,8 @@ julia> ρ_m(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 ρ_m(z,h,Ω_m) = constants.RHO_C_Z0_CGS * h^2 * Ω_m * (1+z)^3 * u.g/u.cm^3
 
 """
-    ρ_b([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_b([u::UnitLike,], z,h,OmegaB)
+    ρ_b([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_b([u::UnitLike,] z, h, OmegaB)
 The baryon density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_b(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{b,0} \\ (1+z)^3 \\ \\text{g/cm}^3 
@@ -676,8 +676,8 @@ julia> ρ_b(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 ρ_b(z,h,Ω_b) = constants.RHO_C_Z0_CGS * h^2 * Ω_b * (1+z)^3 * u.g/u.cm^3
 
 """
-    ρ_dm([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_dm([u::UnitLike,], z,h,OmegaDM)
+    ρ_dm([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_dm([u::UnitLike,] z, h, OmegaDM)
 The dark matter density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_{dm}(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{dm,0} \\ (1+z)^3 \\ \\text{g/cm}^3 
@@ -696,8 +696,8 @@ julia> ρ_dm(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 ρ_dm(z,h,Ω_dm) = constants.RHO_C_Z0_CGS * h^2 * Ω_dm * (1+z)^3 * u.g/u.cm^3
 
 """
-    ρ_Λ([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_Λ([u::UnitLike,], z,h,Ω_Λ,w0=-1,wa=0)
+    ρ_Λ([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_Λ([u::UnitLike,] z, h, Ω_Λ, w0=-1, wa=0)
 The dark energy density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided. For a general dark energy equation of state ``w(z)``,
 ```math
 \\rho_\\Lambda(z) = \\rho_{\\Lambda,0} \\ \\exp \\left[  3 \\int_0^z  \\frac{1+w \\left( z^\\prime\\right)}{1+z^\\prime} \\ dz^\\prime \\ \\right]
@@ -729,8 +729,8 @@ true
 ρ_Λ(z,h,Ω_Λ,w0=-1,wa=0) = constants.RHO_C_Z0_CGS * h^2 * Ω_Λ / de_density_scale(z,w0,wa) * u.g/u.cm^3
 
 """
-    ρ_γ([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_γ([u::UnitLike,], z,h,Ω_γ)
+    ρ_γ([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_γ([u::UnitLike,] z, h, Ω_γ)
 The photon matter density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_\\gamma(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{\\gamma,0} \\ (1+z)^4 \\ \\text{g/cm}^3 
@@ -749,8 +749,8 @@ true
 ρ_γ(z,h,Ω_γ) = constants.RHO_C_Z0_CGS * h^2 * Ω_γ * (1+z)^4 * u.g/u.cm^3
 
 """
-    ρ_ν([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_ν([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=Cosmology.n_nu(Neff))
+    ρ_ν([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_ν([u::UnitLike,] z, h, Tcmb0, Neff, m_nu, N_nu=Cosmology.n_nu(Neff))
 The neutrino energy density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_\\nu(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{\\nu,0} \\ (1+z)^4 \\ \\text{g/cm}^3 
@@ -769,8 +769,8 @@ julia> ρ_ν(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 ρ_ν(z,h,Tcmb0,Neff,m_nu,N_nu=n_nu(Neff)) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) )
 
 """
-    ρ_r([u::UnitLike,], c::AbstractCosmology, z)
-    ρ_r([u::UnitLike,], z,h,Tcmb0,Neff,m_nu,N_nu=Cosmology.n_nu(Neff))
+    ρ_r([u::UnitLike,] c::AbstractCosmology, z)
+    ρ_r([u::UnitLike,] z, h, Tcmb0, Neff, m_nu, N_nu=Cosmology.n_nu(Neff))
 The energy density of the universe in relativistic species at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 ```math
 \\rho_r(z) = 1.878 \\times 10^{-29} \\ h^2 \\ \\Omega_{r,0} \\ (1+z)^4 \\ \\text{g/cm}^3 
@@ -791,6 +791,48 @@ true
 ρ_r(c::AbstractCosmology,z) = ρ_γ(c,z) * (1 + nu_relative_density(c, z))
 ρ_r(z,h,Tcmb0,Neff,m_nu,N_nu=n_nu(Neff)) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * (1.0 + nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) ) )
 
+#############################################################################################
+# Quantities Involving Densities
+#############################################################################################
+"""
+    lagrangianR([u::UnitLike,] M::Union{Real,u.Mass}, c::AbstractCosmology, z::Real=0.0)
+The Lagrangian radius (in Mpc) of a sphere of mass `M` (in solar masses) at redshift `z`; i.e. the radius of a sphere that would enclose the mass `M` given the mean density of the universe at redshift `z`.
+
+```math
+R(z) = \\left( \\frac{3 M}{4π \\ ρ_m(z)} \\right)^{1/3}
+```
+
+# Examples
+```jldoctest
+julia> lagrangianR(10^12, Cosmology.Planck18, 0.0) == lagrangianR(10^12, Cosmology.Planck18) == lagrangianR(10^12 * UnitfulAstro.Msun, Cosmology.Planck18) ≈ 1.8239544820629736 * UnitfulAstro.Mpc
+true
+
+julia> lagrangianR(Unitful.m, 10^12, Cosmology.Planck18, 0.0) ≈ 5.628135454962416e22 * Unitful.m
+true
+```
+"""
+lagrangianR(M::Real, c::AbstractCosmology, z::Real=0.0) = cbrt(3 * M / (4π * u.ustrip(ua.Msun/ua.Mpc^3, ρ_m(c,z)))) * ua.Mpc
+lagrangianR(M::u.Mass, c::AbstractCosmology, z::Real=0.0) = lagrangianR(u.ustrip(ua.Msun,M), c, z)
+
+"""
+    lagrangianM([u::UnitLike,] R::Union{Number,u.Length}, c::AbstractCosmology, z::Number=0.0)
+The Lagrangian mass of a sphere of radius `R` in Mpc at redshift `z`; i.e. the mass enclosed by a sphere of radius `R` at redshift `z` given the mean density of the universe at redshift `z`.
+
+```math
+M(z) = \\frac{4π}{3} R^3 ρ_m(z)
+```
+
+# Examples
+```jldoctest
+julia> lagrangianM(8.0, Cosmology.Planck18, 0.0) == lagrangianM(8.0, Cosmology.Planck18) == lagrangianM(8.0 * UnitfulAstro.Mpc, Cosmology.Planck18) ≈ 8.437775631070308e13 * UnitfulAstro.Msun
+true
+
+julia> lagrangianM(Unitful.kg, 8.0, Cosmology.Planck18, 0.0) ≈ 1.6777756351555676e44 * Unitful.kg
+true
+```
+"""
+lagrangianM(R::Number, c::AbstractCosmology, z::Number=0.0) = 4π * R^3 * u.ustrip(ua.Msun/ua.Mpc^3, ρ_m(c,z)) / 3 * ua.Msun
+lagrangianM(R::u.Length, c::AbstractCosmology, z::Number=0.0) = lagrangianM(u.ustrip(ua.Mpc,R), c, z)
 
 #############################################################################################
 # Omegas
@@ -951,6 +993,23 @@ julia> Ω_Λ(Cosmology.Planck18, 1.0)
 Ω_Λ(c::AbstractCosmology,z) = Ω_Λ(c) * de_density_scale(c,z) / E(c,z)^2
 Ω_Λ(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = OmegaL * de_density_scale(z,w0,wa) / E(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)^2
 
+"""
+    δc(c::AbstractCosmology, z::Real)
+    δc(z::Real, h, OmegaM, OmegaK, OmegaL, Tcmb0, m_nu, Neff, w0=-1, wa=0)
+The linear overdensity threshold for halo collapse as calculated from the spherical top-hat collapse model. The canonical value for an Einstein-de-Sitter (EdS) cosmology is ``3/5(3π/2)^{2/3} ≈ 1.686`` but there is a redshift dependence for non-EdS cosmologies. We adopt the fitting function from [Nakamura & Suto 1997](https://ui.adsabs.harvard.edu/abs/1997PThPh..97...49N/abstract) (Equation C-28 in the ArXiv version), also given by Equation 56 in [Chisari et al. 2019](https://ui.adsabs.harvard.edu/abs/2019ApJS..242....2C/abstract).
+
+# Examples
+```jldoctest
+julia> δc(Cosmology.Planck18, 0.0) ≈ 1.675910191226453
+true
+
+julia> δc(Cosmology.Planck18, 10.0) ≈ 1.686388790734125
+true
+```
+"""
+δc(c::AbstractCosmology, z::Real) = 3 * (12π)^(2/3) / 20 * (1 + 0.012299 * log10(Ω_m(c,z)))
+δc(z::Real,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = 3 * (12π)^(2/3) / 20 * (1 + 0.012299 * log10(Ω_m(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)))
+
 #############################################################################################
 # Roots
 #############################################################################################
@@ -1038,6 +1097,6 @@ matter_radiation_equality(c::AbstractCosmology) = 2.5e4 * Ω_m(c) * h(c)^2 / (u.
 for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_radial_dist,
           :comoving_transverse_dist, :angular_diameter_dist, :luminosity_dist,
           :comoving_volume, :comoving_volume_element, :age, :lookback_time,
-          :T_nu, :T_cmb, :ρ_c, :ρ_m, :ρ_b, :ρ_dm, :ρ_Λ, :ρ_γ, :ρ_ν, :ρ_r, :sound_horizon)
+          :T_nu, :T_cmb, :ρ_c, :ρ_m, :ρ_b, :ρ_dm, :ρ_Λ, :ρ_γ, :ρ_ν, :ρ_r, :lagrangianR, :lagrangianM, :sound_horizon)
     @eval $f(uu::u.Unitlike, args...; kws...) = u.uconvert(uu, $f(args...; kws...))
 end
