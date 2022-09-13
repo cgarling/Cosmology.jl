@@ -49,6 +49,8 @@ matter_radiation_equality
 ρ_γ
 ρ_ν
 ρ_r
+lagrangianR
+lagrangianM
 Ω_m
 Ω_b
 Ω_dm
@@ -57,6 +59,7 @@ matter_radiation_equality
 Ω_ν
 Ω_r
 Ω_Λ
+δc
 ```
 
 ## Equation Solving
