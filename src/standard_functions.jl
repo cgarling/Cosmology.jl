@@ -1009,6 +1009,28 @@ true
 """
 δc(c::AbstractCosmology, z::Real) = 3 * (12π)^(2/3) / 20 * (1 + 0.012299 * log10(Ω_m(c,z)))
 δc(z::Real,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = 3 * (12π)^(2/3) / 20 * (1 + 0.012299 * log10(Ω_m(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0,wa)))
+""" 
+    δc(c::AbstractCosmology, M::Union{Real,AbstractArray}, z::Real, mx::Real, gx::Real=1.5)
+Return the linear overdensity threshold for collapse in warm dark matter cosmologies as formulated by Equations 7--10 in [Benson 2013](https://ui.adsabs.harvard.edu/abs/2013MNRAS.428.1774B/abstract). `M` is the halo mass, `z` is the redshift of evaluation, `mx` is the mass of the WDM particle in keV, and `gx` is the effective degrees of freedom with 1.5 being the expected value for a fermionic spin-1/2 particle.
+
+# Examples
+```jldoctest
+julia> δc(Cosmology.Planck18, 10^10, 0.0, 1.0, 1.5) ≈ 1.712312778883257
+true
+```
+"""
+function δc(c::AbstractCosmology, M::Union{Real,AbstractArray}, z::Real, mx::Real, gx::Real=1.5)
+    lcdm_val = δc(c,z)
+    OmegaM = Ω_m(c)
+    littleh = h(c)
+    zeq = 3600 * (OmegaM * littleh^2 / 0.15) - 1
+    # jeans_mass = 3.06e8 * ((1+zeq)/3000)^1.5 * sqrt(OmegaM * littleh^2 / 0.15) * (1.5/gx) * (1/mx)^4
+    jeans_mass = 3.06e8 * sqrt(((1+zeq)/3000)^3) * sqrt(OmegaM * littleh^2 / 0.15) * (1.5/gx) * (1/mx)^4
+    
+    x = @. log(M/jeans_mass)
+    hh = @. (1+exp((x+2.4)/0.1))^-1
+    return @. lcdm_val * ((hh * 0.04 / exp(2.3*x)) + ((1-hh) * exp(0.31687/exp(0.809*x))))
+end
 
 #############################################################################################
 # Roots
