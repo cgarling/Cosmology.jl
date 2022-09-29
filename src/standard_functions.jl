@@ -1005,6 +1005,9 @@ true
 
 julia> δc(Cosmology.Planck18, 10.0) ≈ 1.686388790734125
 true
+
+julia> δc(Cosmology.Planck18,10^10,0.0,1.0,1.5) ≈ 1.712312778883257
+true
 ```
 """
 δc(c::AbstractCosmology, z::Real) = 3 * (12π)^(2/3) / 20 * (1 + 0.012299 * log10(Ω_m(c,z)))
