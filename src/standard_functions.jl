@@ -809,10 +809,10 @@ true
 
 julia> lagrangianR(Unitful.m, 10^12, Cosmology.Planck18, 0.0) ≈ 5.628135454962416e22 * Unitful.m
 true
+```
 
 # Notes
 If you want to provide `M` in units of `Msun / h` and get out `R` in units of `Mpc / h`, then you need to multiply the result by `h^(2/3)`; i.e. `R[Mpc/h] = lagrangianR(M[Msun/h], c, z) * h^(2/3)`.
-```
 """
 lagrangianR(M::Real, c::AbstractCosmology, z::Real=0.0) = cbrt(3 * M / (4π * u.ustrip(ua.Msun/ua.Mpc^3, ρ_m(c,z)))) * ua.Mpc
 lagrangianR(M::u.Mass, c::AbstractCosmology, z::Real=0.0) = lagrangianR(u.ustrip(ua.Msun,M), c, z)
