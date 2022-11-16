@@ -796,7 +796,7 @@ true
 #############################################################################################
 """
     lagrangianR([u::UnitLike,] M::Union{Real,u.Mass}, c::AbstractCosmology, z::Real=0.0)
-The Lagrangian radius (in Mpc) of a sphere of mass `M` (in solar masses) at redshift `z`; i.e. the radius of a sphere that would enclose the mass `M` given the mean density of the universe at redshift `z`.
+The Lagrangian radius (in Mpc) of a sphere of mass `M` (in solar masses) at redshift `z`; i.e. the radius of a sphere that would enclose the mass `M` given the mean density of the universe at redshift `z`. 
 
 ```math
 R(z) = \\left( \\frac{3 M}{4π \\ ρ_m(z)} \\right)^{1/3}
@@ -809,6 +809,9 @@ true
 
 julia> lagrangianR(Unitful.m, 10^12, Cosmology.Planck18, 0.0) ≈ 5.628135454962416e22 * Unitful.m
 true
+
+# Notes
+If you want to provide `M` in units of `Msun / h` and get out `R` in units of `Mpc / h`, then you need to multiply the result by `h^(2/3)`; i.e. `R[Mpc/h] = lagrangianR(M[Msun/h], c, z) * h^(2/3)`.
 ```
 """
 lagrangianR(M::Real, c::AbstractCosmology, z::Real=0.0) = cbrt(3 * M / (4π * u.ustrip(ua.Msun/ua.Mpc^3, ρ_m(c,z)))) * ua.Mpc
@@ -830,6 +833,9 @@ true
 julia> lagrangianM(Unitful.kg, 8.0, Cosmology.Planck18, 0.0) ≈ 1.6777756351555676e44 * Unitful.kg
 true
 ```
+
+# Notes
+If you want to provide `R` in units of `Mpc / h` and get out `M` in units of `Msun / h`, then you need to divide the result by `h^2`; i.e. `M[Msun/h] = lagrangianR(R[Mpc/h], c, z) / h^2`.
 """
 lagrangianM(R::Number, c::AbstractCosmology, z::Number=0.0) = 4π * R^3 * u.ustrip(ua.Msun/ua.Mpc^3, ρ_m(c,z)) / 3 * ua.Msun
 lagrangianM(R::u.Length, c::AbstractCosmology, z::Number=0.0) = lagrangianM(u.ustrip(ua.Mpc,R), c, z)
