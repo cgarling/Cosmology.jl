@@ -612,7 +612,7 @@ de_density_scale(z::Real,w0::Real,wa::Real) = (zp1 = 1+z; zp1^(3 * (1 + w0 + wa)
     ρ_c([u::UnitLike,] c::AbstractCosmology, z)
     ρ_c([u::UnitLike,] z, h, OmegaM, OmegaK, OmegaL, Tcmb0, m_nu, Neff, w0=-1, wa=0)
     ρ_c(h::Number,E::Number)
-The critical density of the universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
+The critical density of the Universe at redshift z, in g / cm^3. Will convert to compatible unit `u` if provided.
 
 ```math
 \\begin{aligned}
@@ -630,6 +630,9 @@ julia> ρ_c(Cosmology.Planck18, 0.0)
 julia> ρ_c(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 127.05281539744222 M⊙ kpc^-3
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_c(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * E(c,z)^2 * u.g/u.cm^3
 ρ_c(z,h,OmegaM,OmegaK,OmegaL,Tcmb0,m_nu,Neff,w0=-1,wa=0) = constants.RHO_C_Z0_CGS * h^2 *
@@ -651,6 +654,9 @@ julia> ρ_m(Cosmology.Planck18, 0.0)
 julia> ρ_m(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 39.343174815971956 M⊙ kpc^-3
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_m(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_m(c) * (1 + z)^3 * u.g/u.cm^3
 ρ_m(z,h,Ω_m) = constants.RHO_C_Z0_CGS * h^2 * Ω_m * (1+z)^3 * u.g/u.cm^3
@@ -671,6 +677,9 @@ julia> ρ_b(Cosmology.Planck18, 0.0)
 julia> ρ_b(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 6.221776370012746 M⊙ kpc^-3
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_b(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_b(c) * (1 + z)^3 * u.g/u.cm^3
 ρ_b(z,h,Ω_b) = constants.RHO_C_Z0_CGS * h^2 * Ω_b * (1+z)^3 * u.g/u.cm^3
@@ -691,6 +700,9 @@ julia> ρ_dm(Cosmology.Planck18, 0.0)
 julia> ρ_dm(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 33.12139844595921 M⊙ kpc^-3
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_dm(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_dm(c) * (1 + z)^3 * u.g/u.cm^3
 ρ_dm(z,h,Ω_dm) = constants.RHO_C_Z0_CGS * h^2 * Ω_dm * (1+z)^3 * u.g/u.cm^3
@@ -724,6 +736,9 @@ julia> ρ_Λ(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 julia> ρ_Λ(Cosmology.Planck18, 0.0) == ρ_Λ(Cosmology.Planck18, 1.0)
 true
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_Λ(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_Λ(c) / de_density_scale(c,z) * u.g/u.cm^3
 ρ_Λ(z,h,Ω_Λ,w0=-1,wa=0) = constants.RHO_C_Z0_CGS * h^2 * Ω_Λ / de_density_scale(z,w0,wa) * u.g/u.cm^3
@@ -744,6 +759,9 @@ true
 julia> ρ_γ(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 0.006863412319931541 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
 true
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_γ(c::AbstractCosmology,z) = partype(c)(constants.RHO_C_Z0_CGS) * h(c)^2 * Ω_γ(c) * (1 + z)^4 * u.g/u.cm^3
 ρ_γ(z,h,Ω_γ) = constants.RHO_C_Z0_CGS * h^2 * Ω_γ * (1+z)^4 * u.g/u.cm^3
@@ -764,6 +782,9 @@ julia> ρ_ν(Cosmology.Planck18, 0.0)
 julia> ρ_ν(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
 0.1829146735894845 M⊙ kpc^-3
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_ν(c::AbstractCosmology,z) = ρ_γ(c,z) * nu_relative_density(c, z)
 ρ_ν(z,h,Tcmb0,Neff,m_nu,N_nu=n_nu(Neff)) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) )
@@ -787,6 +808,9 @@ true
 julia> ρ_r(Cosmology.Planck18, 0.0) ≈ ρ_γ(Cosmology.Planck18, 0.0) + ρ_ν(Cosmology.Planck18, 0.0)
 true
 ```
+
+# Notes
+If you want the critical density with the dimensionless hubble constant `h` factored out (i.e., in units of [density * h^2] you need to divide this result by `h^2`. 
 """
 ρ_r(c::AbstractCosmology,z) = ρ_γ(c,z) * (1 + nu_relative_density(c, z))
 ρ_r(z,h,Tcmb0,Neff,m_nu,N_nu=n_nu(Neff)) = (Ω_γ = 4.481620089297254e-7 * Tcmb0^4 / h^2; ρ_γ(z,h,Ω_γ) * (1.0 + nu_relative_density(m_nu, Neff, u.ustrip(T_nu(Tcmb0, z)), N_nu) ) )
