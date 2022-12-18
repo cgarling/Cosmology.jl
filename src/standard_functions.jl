@@ -49,23 +49,23 @@ Return the temperature of the CMB at redshift `z`, in Kelvin. Will convert to co
 
 # Examples
 ```jldoctest
-julia> T_cmb(Cosmology.Planck18)
-2.7255 K
+julia> T_cmb(Cosmology.Planck18) ≈ 2.7255 * Unitful.K
+true
 
-julia> T_cmb(Cosmology.Planck18, 1.0)
-5.451 K
+julia> T_cmb(Cosmology.Planck18, 1.0) ≈ 5.451 * Unitful.K
+true
 
-julia> T_cmb(Unitful.°C, Cosmology.Planck18, 1.0)
--267.69899999999996 °C
+julia> T_cmb(Unitful.°C, Cosmology.Planck18, 1.0) ≈ -267.69899999999996 * Unitful.°C
+true
 
-julia> T_cmb(1.0, 2.7255)
-5.451 K
+julia> T_cmb(1.0, 2.7255) ≈ 5.451 * Unitful.K
+true
 
-julia> T_cmb(1.0, 2.7255 * Unitful.K)
-5.451 K
+julia> T_cmb(1.0, 2.7255 * Unitful.K) ≈ 5.451 * Unitful.K
+true
 
-julia> T_cmb(Unitful.°C, 1.0, 2.7255 * Unitful.K)
--267.69899999999996 °C
+julia> T_cmb(Unitful.°C, 1.0, 2.7255 * Unitful.K) ≈ -267.69899999999996 * Unitful.°C
+true
 ```
 """
 T_cmb(c::AbstractCosmology) = c.Tcmb0 * u.K
@@ -108,23 +108,23 @@ See, e.g., Equation 3.1.20 on page 154 of Weinberg's "Cosmology" for an explanat
 
 # Examples
 ```jldoctest
-julia> T_nu(2.7255)
-1.9453688391750839 K
+julia> T_nu(2.7255) ≈ 1.9453688391750839 * Unitful.K
+true
 
-julia> T_nu(Cosmology.Planck18)
-1.9453688391750839 K
+julia> T_nu(Cosmology.Planck18) ≈ 1.9453688391750839 * Unitful.K
+true
 
-julia> T_nu(2.7255, 1)
-3.8907376783501677 K
+julia> T_nu(2.7255, 1) ≈ 3.8907376783501677 * Unitful.K
+true
 
-julia> T_nu(2.7255 * Unitful.K, 1)
-3.8907376783501677 K
+julia> T_nu(2.7255 * Unitful.K, 1) ≈ 3.8907376783501677 * Unitful.K
+true
 
-julia> T_nu(Cosmology.Planck18)
-1.9453688391750839 K
+julia> T_nu(Cosmology.Planck18) ≈ 1.9453688391750839 * Unitful.K
+true
 
-julia> T_nu(Cosmology.Planck18, 1)
-3.8907376783501677 K
+julia> T_nu(Cosmology.Planck18, 1) ≈ 3.8907376783501677 * Unitful.K
+true
 ```
 """
 T_nu(Tcmb0::T) where T<:Number = T(constants.TNU_PREFAC) * Tcmb0 * u.K
@@ -293,8 +293,8 @@ where `a` is the cosmological [`scale factor`](@ref Cosmology.scale_factor), ``\
 
 # Examples
 ```jldoctest
-julia> H(Cosmology.Planck18,1.0)
-120.63059000872548 km Mpc^-1 s^-1
+julia> H(Cosmology.Planck18,1.0) ≈ 120.63059000872548 * Unitful.km / UnitfulAstro.Mpc / Unitful.s
+true
 ```
 """
 H(c::AbstractCosmology, z::Real) = 100 * h(c) * E(c, z) * u.km / u.s / ua.Mpc
@@ -307,8 +307,8 @@ Return the Hubble distance at present-day in Mpc, defined as the speed of light 
 
 # Examples
 ```jldoctest
-julia> Cosmology.hubble_dist0(Cosmology.Planck18)
-4430.866952409105 Mpc
+julia> Cosmology.hubble_dist0(Cosmology.Planck18) ≈ 4430.866952409105 * UnitfulAstro.Mpc
+true
 ```
 """
 hubble_dist0(c::AbstractCosmology) = partype(c)(2997.92458) / h(c) * ua.Mpc # constant is speed of light in km/s divided by 100
@@ -320,8 +320,8 @@ Return the speed of light times the [`Hubble time`](@ref Cosmology.hubble_time) 
 ```
 # Examples
 ```jldoctest
-julia> hubble_dist(Cosmology.Planck18,1.0)
-2485.21090693758 Mpc
+julia> hubble_dist(Cosmology.Planck18,1.0) ≈ 2485.21090693758 * UnitfulAstro.Mpc
+true
 ```
 """
 hubble_dist(c::AbstractCosmology, z::Real) = hubble_dist0(c) / E(c, z)
@@ -332,8 +332,8 @@ Return ``\\frac{1}{\\text{H}_0}`` in Gyr.
 
 # Examples
 ```jldoctest
-julia> Cosmology.hubble_time0(Cosmology.Planck18)
-14.451555153425796 Gyr
+julia> Cosmology.hubble_time0(Cosmology.Planck18) ≈ 14.451555153425796 * Unitful.Gyr
+true
 ```
 """
 hubble_time0(c::AbstractCosmology) =  partype(c)(9.777922216807893) / h(c) * u.Gyr # 9.77814 # 9.777922216807893 / h(c) * u.Gyr
@@ -343,8 +343,8 @@ Return ``\\frac{1}{\\text{H}\\left(z\\right)}`` in Gyr.
 
 # Examples
 ```jldoctest
-julia> hubble_time(Cosmology.Planck18, 1.0)
-8.105673872689037 Gyr
+julia> hubble_time(Cosmology.Planck18, 1.0) ≈ 8.105673872689037 * Unitful.Gyr
+true
 ```
 """
 hubble_time(c::AbstractCosmology, z::Real) = hubble_time0(c) / E(c, z)
@@ -368,14 +368,14 @@ D_R(z_1,z_2) = \\frac{c}{H_0} \\int_{z_1}^{z_2} \\frac{1}{E(z)} \\ dz = \\frac{c
 
 # Examples
 ```jldoctest
-julia> comoving_radial_dist(Cosmology.Planck18, 1.0)
-3395.6344711515626 Mpc
+julia> comoving_radial_dist(Cosmology.Planck18, 1.0) ≈ 3395.6344711515626 * UnitfulAstro.Mpc
+true
 
-julia> comoving_radial_dist(Cosmology.Planck18, 1.0, 2.0)
-1912.5544127348157 Mpc
+julia> comoving_radial_dist(Cosmology.Planck18, 1.0, 2.0) ≈ 1912.5544127348157 * UnitfulAstro.Mpc
+true
 
-julia> comoving_radial_dist(UnitfulAstro.Gpc, Cosmology.Planck18, 1.0, 2.0)
-1.9125544127348157 Gpc
+julia> comoving_radial_dist(UnitfulAstro.Gpc, Cosmology.Planck18, 1.0, 2.0) ≈ 1.9125544127348157 * UnitfulAstro.Gpc
+true
 ```
 """
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
@@ -400,8 +400,8 @@ where ``D_R(z_1,z_2)`` is the [`comoving radial distance`](@ref Cosmology.comovi
 julia> comoving_transverse_dist(Cosmology.Planck18, 1.0) == comoving_radial_dist(Cosmology.Planck18, 1.0)
 true
 
-julia> comoving_transverse_dist(cosmology(OmegaK=0.1), 1.0)
-3331.2531218753124 Mpc
+julia> comoving_transverse_dist(cosmology(OmegaK=0.1), 1.0) ≈ 3331.2531218753124 * UnitfulAstro.Mpc
+true
 ```
 """
 comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) = comoving_radial_dist(c, z₁, z₂; kws...)
@@ -429,14 +429,14 @@ where ``D_T`` is the [`comoving transverse distance`](@ref Cosmology.comoving_tr
 
 # Examples
 ```jldoctest
-julia> angular_diameter_dist(Cosmology.Planck18, 1.0)
-1697.8172355757813 Mpc
+julia> angular_diameter_dist(Cosmology.Planck18, 1.0) ≈ 1697.8172355757813 * UnitfulAstro.Mpc
+true
 
-julia> angular_diameter_dist(Cosmology.Planck18, 1.0, 2.0)
-637.5181375782719 Mpc
+julia> angular_diameter_dist(Cosmology.Planck18, 1.0, 2.0) ≈ 637.5181375782719 * UnitfulAstro.Mpc
+true
 
-julia> angular_diameter_dist(UnitfulAstro.Gpc, Cosmology.Planck18, 1.0, 2.0)
-0.6375181375782719 Gpc
+julia> angular_diameter_dist(UnitfulAstro.Gpc, Cosmology.Planck18, 1.0, 2.0) ≈ 0.6375181375782719 * UnitfulAstro.Gpc
+true
 ```
 """
 angular_diameter_dist(c::AbstractCosmology, z; kws...) =
@@ -456,11 +456,11 @@ where ``D_T`` is the [`comoving transverse distance`](@ref Cosmology.comoving_tr
 
 # Examples
 ```jldoctest
-julia> luminosity_dist(Cosmology.Planck18, 1.0)
-6791.268942303125 Mpc
+julia> luminosity_dist(Cosmology.Planck18, 1.0) ≈ 6791.268942303125 * UnitfulAstro.Mpc
+true
 
-julia> luminosity_dist(UnitfulAstro.Gpc, Cosmology.Planck18, 1.0)
-6.791268942303125 Gpc
+julia> luminosity_dist(UnitfulAstro.Gpc, Cosmology.Planck18, 1.0) ≈ 6.791268942303125 * UnitfulAstro.Gpc
+true
 ```
 """
 luminosity_dist(c::AbstractCosmology, z; kws...) =
@@ -480,7 +480,6 @@ where ``D_L(z)`` is the [`luminosity distance`](@ref Cosmology.luminosity_dist) 
 ```jldoctest
 julia> distmod(Cosmology.Planck18,1.0)
 44.159754646918806
-
 ```
 """
 distmod(c::AbstractCosmology, z; kws...) = 5 * log10( u.ustrip(ua.Mpc, luminosity_dist(c, z; kws...))) + 25
@@ -496,11 +495,11 @@ Comoving volume in Gpc^3 at redshift `z`. Will convert to compatible unit `u` if
 
 # Examples
 ```jldoctest
-julia> comoving_volume(Cosmology.Planck18, 1.0)
-164.00285577357855 Gpc^3
+julia> comoving_volume(Cosmology.Planck18, 1.0) ≈ 164.00285577357855 * UnitfulAstro.Gpc^3
+true
 
-julia> comoving_volume(UnitfulAstro.Mpc^3, Cosmology.Planck18, 1.0)
-1.6400285577357855e11 Mpc^3
+julia> comoving_volume(UnitfulAstro.Mpc^3, Cosmology.Planck18, 1.0) ≈ 1.6400285577357855e11 * UnitfulAstro.Mpc^3
+true
 ```
 """
 comoving_volume(c::AbstractFlatCosmology, z; kws...) =
@@ -527,11 +526,11 @@ Comoving volume element in Gpc out to redshift `z`. Will convert to compatible u
 
 # Examples
 ```jldoctest
-julia> comoving_volume_element(Cosmology.Planck18, 1.0)
-28.655310479576467 Gpc^3
+julia> comoving_volume_element(Cosmology.Planck18, 1.0) ≈ 28.655310479576467 * UnitfulAstro.Gpc^3
+true
 
-julia> comoving_volume_element(UnitfulAstro.Mpc^3, Cosmology.Planck18, 1.0)
-2.8655310479576466e10 Mpc^3
+julia> comoving_volume_element(UnitfulAstro.Mpc^3, Cosmology.Planck18, 1.0) ≈ 2.8655310479576466e10 * UnitfulAstro.Mpc^3
+true
 ```
 """
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
@@ -550,11 +549,11 @@ Return the age of the universe in Gyr at redshift `z`. Will convert to compatibl
 
 # Examples
 ```jldoctest
-julia> age(Cosmology.Planck18, 0.0)
-13.786885301987898 Gyr
+julia> age(Cosmology.Planck18, 0.0) ≈ 13.786885301987898 * Unitful.Gyr
+true
 
-julia> age(UnitfulAstro.Myr, Cosmology.Planck18, 0.0)
-13786.885301987897 Myr
+julia> age(UnitfulAstro.Myr, Cosmology.Planck18, 0.0) ≈ 13786.885301987897 * Unitful.Myr
+true
 ```
 """
 age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z); kws...)
@@ -566,11 +565,11 @@ Difference between age at redshift 0 and age at redshift `z` in Gyr. Will conver
 
 # Examples
 ```jldoctest
-julia> lookback_time(Cosmology.Planck18, 1.0)
-7.935542002084356 Gyr
+julia> lookback_time(Cosmology.Planck18, 1.0) ≈ 7.935542002084356 * Unitful.Gyr
+true
 
-julia> lookback_time(UnitfulAstro.Myr, Cosmology.Planck18, 1.0)
-7935.542002084356 Myr
+julia> lookback_time(UnitfulAstro.Myr, Cosmology.Planck18, 1.0) ≈ 7935.542002084356 * Unitful.Myr
+true
 ```
 """
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
@@ -624,11 +623,11 @@ where [`E`](@ref Cosmology.E) is the Hubble factor in units of ``H_0``. See, e.g
 
 # Examples
 ```jldoctest
-julia> ρ_c(Cosmology.Planck18, 0.0)
-8.598814256619093e-30 g cm^-3
+julia> ρ_c(Cosmology.Planck18, 0.0) ≈ 8.598814256619093e-30 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_c(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-127.05281539744222 M⊙ kpc^-3
+julia> ρ_c(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 127.05281539744222 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 ```
 
 # Notes
@@ -648,11 +647,11 @@ The matter density of the universe at redshift z, in g / cm^3. Will convert to c
 
 # Examples
 ```jldoctest
-julia> ρ_m(Cosmology.Planck18, 0.0)
-2.6627088227046682e-30 g cm^-3
+julia> ρ_m(Cosmology.Planck18, 0.0) ≈ 2.6627088227046682e-30 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_m(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-39.343174815971956 M⊙ kpc^-3
+julia> ρ_m(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 39.343174815971956 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 ```
 
 # Notes
@@ -671,11 +670,11 @@ The baryon density of the universe at redshift z, in g / cm^3. Will convert to c
 
 # Examples
 ```jldoctest
-julia> ρ_b(Cosmology.Planck18, 0.0)
-4.21083934146637e-31 g cm^-3
+julia> ρ_b(Cosmology.Planck18, 0.0) ≈ 4.21083934146637e-31 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_b(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-6.221776370012746 M⊙ kpc^-3
+julia> ρ_b(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 6.221776370012746 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 ```
 
 # Notes
@@ -694,11 +693,11 @@ The dark matter density of the universe at redshift z, in g / cm^3. Will convert
 
 # Examples
 ```jldoctest
-julia> ρ_dm(Cosmology.Planck18, 0.0)
-2.2416248885580312e-30 g cm^-3
+julia> ρ_dm(Cosmology.Planck18, 0.0) ≈ 2.2416248885580312e-30 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_dm(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-33.12139844595921 M⊙ kpc^-3
+julia> ρ_dm(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 33.12139844595921 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 ```
 
 # Notes
@@ -727,11 +726,11 @@ See also [`de_density_scale`](@ref Cosmology.de_density_scale).
 
 # Examples
 ```jldoctest
-julia> ρ_Λ(Cosmology.Planck18, 0.0)
-5.923261432735804e-30 g cm^-3
+julia> ρ_Λ(Cosmology.Planck18, 0.0) ≈ 5.923261432735804e-30 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_Λ(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-87.51986249556084 M⊙ kpc^-3
+julia> ρ_Λ(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 87.51986249556084 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 
 julia> ρ_Λ(Cosmology.Planck18, 0.0) == ρ_Λ(Cosmology.Planck18, 1.0)
 true
@@ -776,11 +775,11 @@ The neutrino energy density of the universe at redshift z, in g / cm^3. Will con
 
 # Examples
 ```jldoctest
-julia> ρ_ν(Cosmology.Planck18, 0.0)
-1.2379491930863195e-32 g cm^-3
+julia> ρ_ν(Cosmology.Planck18, 0.0) ≈ 1.2379491930863195e-32 * Unitful.g / Unitful.cm^3
+true
 
-julia> ρ_ν(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0)
-0.1829146735894845 M⊙ kpc^-3
+julia> ρ_ν(UnitfulAstro.Msun / UnitfulAstro.kpc^3, Cosmology.Planck18, 0.0) ≈ 0.1829146735894845 * UnitfulAstro.Msun / UnitfulAstro.kpc^3
+true
 ```
 
 # Notes
@@ -1125,8 +1124,8 @@ s = \\frac{44.5 \\, \\text{log} \\left( 9.83 / \\Omega_0 / h^2 \\right)}{ \\sqrt
 
 # Examples
 ```jldoctest
-julia> sound_horizon(Cosmology.Planck18)
-150.10339082768203 Mpc
+julia> sound_horizon(Cosmology.Planck18) ≈ 150.10339082768203 * UnitfulAstro.Mpc
+true
 ```
 """
 sound_horizon(c::AbstractCosmology) = (h2 = h(c)^2; 44.5 * log(9.83 / Ω_m(c) / h2) / sqrt(1.0 + 10.0 * (Ω_b(c) * h2)^0.75) * ua.Mpc)
