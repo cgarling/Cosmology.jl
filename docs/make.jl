@@ -12,7 +12,9 @@ makedocs(
     authors = "Chris Garling",
     pages = ["index.md","types.md","public_methods.md","integrated_packages.md","private_methods.md","constants.md","docindex.md"],
     doctest=true,
-    warnonly = [:missing_docs] # Do not error if we are missing a docstring in the module
+    linkcheck=true,
+    # Do not error if we are missing a docstring in the module or if an external link is invalid
+    warnonly = [:missing_docs, :linkcheck]
 )
 
 deploydocs(;
