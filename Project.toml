@@ -12,6 +12,7 @@ UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
 UnitfulEquivalences = "da9c4bc3-91c8-4f02-8a40-6b990d2a7e0c"
 
 [compat]
+PhysicalConstants = "0.2"
 QuadGK = "0.1.1, 0.2, 0.3, 2"
 Roots = "1.4, 2"
 Unitful = "0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 1.0"
