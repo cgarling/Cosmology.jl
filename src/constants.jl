@@ -1,8 +1,11 @@
 module constants
 
-import Unitful as u
-import UnitfulAstro as ua
-import PhysicalConstants.CODATA2018 as PC
+import Unitful
+const u = Unitful
+import UnitfulAstro
+const ua = UnitfulAstro
+import PhysicalConstants#.CODATA2018 as PC
+const PC = PhysicalConstants.CODATA2018
 
 """ Newton's gravitational constant in units of kpc km^2 / Msun / s^2. """
 const G = PC.G |> ua.kpc * u.km^2 / ua.Msun / u.s^2 |> u.ustrip 
