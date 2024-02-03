@@ -246,10 +246,10 @@ julia> x=(0.0,0.0,0.06);
 julia> m_nu(x) === x
 true
 
-julia> x=(0.0,0.0,0.06) .* Unitful.eV;
+julia> x=(0.0,0.0,0.06) .* Unitful.g;
 
-julia> m_nu(x)
-(0.0, 0.0, 0.06)
+julia> all(m_nu(x) .≈ (0.0, 0.0, 3.3657531622826707e31))
+true
 
 julia> m_nu(0.06)
 (0.06,)
