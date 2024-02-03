@@ -264,8 +264,8 @@ m_nu(x::AbstractArray{<:u.Energy}) = ntuple(i->u.ustrip(u.eV,x[i]),length(x))
 m_nu(x::AbstractArray{<:u.Mass}) = ntuple(i->u.ustrip(u.eV,x[i],ue.MassEnergy()),length(x))
 m_nu(x::Tuple) = m_nu(promote(x...)) # this doesn't work well for mixed units in m_nu. 
 m_nu(x::NTuple) = x
-m_nu(x::NTuple{N,T}) where {N,T<:u.Energy} = ntuple(i->u.ustrip(u.eV,x[i]),Val(N))
-m_nu(x::NTuple{N,T}) where {N,T<:u.Mass} = ntuple(i->u.ustrip(u.eV,x[i],ue.MassEnergy()),Val(N))
+m_nu(x::NTuple{N,u.Energy}) where N = ntuple(i->u.ustrip(u.eV,x[i]),Val(N))
+m_nu(x::NTuple{N,u.Mass}) where N = ntuple(i->u.ustrip(u.eV,x[i],ue.MassEnergy()),Val(N))
 m_nu(x::Number) = (x,)
 m_nu(x::Nothing) = (0,)
 
