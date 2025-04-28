@@ -244,7 +244,7 @@ end
 end
 
 @testset "Utilities" begin
-    c = cosmology(h = 0.7,N_eff=3.046,Tcmb0=2.75,OmegaK=0)
+    c = cosmology(h = 0.7, N_eff=3.046, Tcmb0=2.75, OmegaK=0)
     @test hubble_time(c, 0) ≈ Cosmology.hubble_time0(c)
     @test hubble_dist(c, 0) ≈ Cosmology.hubble_dist0(c)
     @test H(c, 0) ≈ 70u"km/s/Mpc"
@@ -253,6 +253,6 @@ end
     @test T_nu(c,1.) ≈ 3.925712205269845 * u.K
     @test T_cmb(c,0) == 2.75 * u.K
     @test T_cmb(c,1.) ≈ 5.5 * u.K
-    @test z_at_value(c, scale_factor, 0.8) ≈ 0.25
+    @test z_at_value(c, T_cmb, 5.5*u.K) ≈ 1
 end
 

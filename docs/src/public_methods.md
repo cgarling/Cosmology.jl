@@ -73,4 +73,5 @@ z_at_value
 ```@docs
 scale_factor
 ∇scale_factor
+redshift
 ```

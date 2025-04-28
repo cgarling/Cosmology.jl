@@ -235,7 +235,7 @@ end
     scale_factor(z::Real)
     scale_factor(c::AbstractCosmology, z::Real)
 
-Calculate the scale factor at redshift `z`. The scale factor is defined as ``a=\\frac{1}{1+z}``. The method that takes a cosmology is for compatibility with [`z_at_value`](@ref Cosmology.z_at_value). The derivative with respect to z is available as [`∇scale_factor`](@ref).
+Calculate the scale factor at redshift `z`. The scale factor is ``a=\\frac{1}{1+z}`` for cosmologies with FLRW metrics. The method that takes a cosmology is for compatibility with [`z_at_value`](@ref Cosmology.z_at_value). The redshift corresponding to a given scale factor can also be calculated with [`redshift`](@ref Cosmology.redshift). The derivative with respect to z is available as [`∇scale_factor`](@ref).
 
 # Examples
 ```jldoctest
@@ -248,9 +248,23 @@ julia> scale_factor(Cosmology.Planck18, 1.0)
 """
 scale_factor(z::Real) = 1 / (1 + z)
 scale_factor(c::AbstractCosmology, z::Real) = scale_factor(z) #for compatibility with z_at_value
+"""
+    redshift(a::Real)
+
+Calculate the redshift when the scale factor (see [`scale_factor`](@ref Cosmology.scale_factor)) is `a`. This is ``z = (1/a) - 1`` for cosmologies with FLRW metrics.
+```jldoctest
+julia> redshift(1.0)
+0.0
+
+julia> redshift(0.1)
+9.0
+```
+"""
+redshift(a::Real) = 1 / a - 1
 """ 
-    ∇scale_factor(z::Real) or ∇scale_factor(c::AbstractCosmology, z::Real)
-Calculate the derivative of the scale factor at redshift `z` with respect to `z`; ``\\frac{da}{dz} = -\\frac{1}{\\left(1+z\\right)^2}``.
+    ∇scale_factor(z::Real)
+    ∇scale_factor(c::AbstractCosmology, z::Real)
+Calculate the derivative of the scale factor at redshift `z` with respect to `z` for cosmologies with FLRW metrics; ``\\frac{da}{dz} = -\\frac{1}{\\left(1+z\\right)^2}``.
 
 # Examples
 ```jldoctest
@@ -262,7 +276,7 @@ julia> ∇scale_factor(Cosmology.Planck18, 1.0)
 ```
 """
 ∇scale_factor(z::Real) = -1 / (1 + z)^2
-∇scale_factor(c::AbstractCosmology,z) = ∇scale_factor(z)
+∇scale_factor(c::AbstractCosmology, z) = ∇scale_factor(z)
 
 """
     E(c::AbstractCosmology, z::Real)
