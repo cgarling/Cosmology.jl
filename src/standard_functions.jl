@@ -536,7 +536,7 @@ end
 """
     comoving_volume_element([u::Unitlike,] c::AbstractCosmology, z; kws...)
 
-Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
+Comoving volume element in Gpc per steradian out to redshift `z`. Will convert to compatible unit `u` if provided. `kws...` are integration options passed to `QuadGK.quadgk`.
 
 # Examples
 ```jldoctest
